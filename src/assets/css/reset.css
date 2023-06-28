@@ -1,0 +1,22 @@
+/* reset.css */
+html,
+body,
+ul,
+ol {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: sans-serif;
+}
+
+a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+ul,
+ol {
+    list-style: none;
+}
