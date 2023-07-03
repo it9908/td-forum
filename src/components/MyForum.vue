@@ -2,99 +2,222 @@
   <div class="container">
     <el-row>
       <el-row :gutter="10">
-        <el-col :xs="4" :sm="6" :md="2" :lg="4" :xl="5">
+        <el-col :md="4" :lg="4" :xl="3">
           <div class="grid-content bg-purple-light">
+            <el-page-header @back="goBack" content="详情页面"></el-page-header>
             <router-link to="/forum">全部帖子</router-link>
           </div>
         </el-col>
-        <el-col :xs="4" :sm="6" :md="20" :lg="16" :xl="14">
+        <el-col :md="16" :lg="16" :xl="18">
           <div class="grid-content-center bg-purple">
             <router-view></router-view>
           </div>
         </el-col>
-        <el-col :xs="8" :sm="6" :md="2" :lg="4" :xl="5">
+        <el-col :md="4" :lg="4" :xl="3">
           <div class="grid-content grid-content-right">
             <el-avatar :size="60" :src="userInfo.avatar"></el-avatar>
-            <el-row>
-              <span>{{userInfo.username}}</span>
-            </el-row>
+            <span>{{userInfo.username}}</span>
             <el-row class="s-box" :gutter="10">
               <el-col :span="12">
                 <div class="grid-content-s">
                   <i class="el-icon-chat-line-square"></i>
                   <router-link to="/forum/myposts">我的帖子</router-link>
-                  
                 </div>
               </el-col>
-             <el-col :span="12">
+              <el-col :span="12">
                 <div class="grid-content-s">
                   <i class="el-icon-chat-line-square"></i>
                   <router-link to="/forum/mycomment">我的评论</router-link>
                 </div>
               </el-col>
             </el-row>
+            <el-menu class="el-menu-vertical-demo" active-text-color="#ffd04b">
+              <el-menu-item>
+                <template slot="title">
+                  <i class="el-icon-edit"></i>
+                  <span @click.stop="drawer = true">发布帖子</span>
+                </template>
+              </el-menu-item>
+              <el-menu-item>
+                <template slot="title">
+                  <i class="el-icon-switch-button"></i>
+                  <el-button type="text" @click="open">退出登录</el-button>
+                  <!-- <span @click.stop="logout">退出登录</span> -->
+                </template>
+              </el-menu-item>
+            </el-menu>
           </div>
-          <div></div>
         </el-col>
       </el-row>
     </el-row>
+
+    <el-drawer
+      :size="'80%'"
+      title="发布"
+      :visible.sync="drawer"
+      :direction="direction"
+      :before-close="handleClose"
+    >
+      <el-form ref="form" label-width="80px" style="padding: 1.25rem;box-sizing: border-box;">
+        <el-form-item label="标题">
+          <el-input v-model="form.title"></el-input>
+        </el-form-item>
+        <el-form-item label="内容">
+          <el-input type="textarea" :rows="5" placeholder="请输入内容" v-model="form.content"></el-input>
+        </el-form-item>
+        <el-form-item label="图片">
+          <el-upload
+            class="upload-demo"
+            name="image"
+            :limit="1"
+            action="http://localhost:5000/upload/image"
+            :on-preview="handlePreview"
+            :on-remove="handleRemove"
+            :on-success="handleUploadSuccess"
+            :file-list="fileList"
+            list-type="picture"
+          >
+            <el-button size="small" type="primary">点击上传</el-button>
+            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+          </el-upload>
+        </el-form-item>
+        <el-form-item>
+          <el-button @click="release">发布</el-button>
+        </el-form-item>
+      </el-form>
+    </el-drawer>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
 export default {
   name: "MyForum",
   data() {
     return {
+      form: {
+        title: "",
+        content: ""
+      },
+      fileList: [],
       //当前用户信息
-      userInfo:[]
+      userInfo: [],
+      drawer: false,
+      direction: "ttb"
     };
   },
   mounted() {
     this.getListPosts();
-    this.getCurrUserInfo()
+    this.getCurrUserInfo();
   },
-  computed: {
-    //用户信息
-    // userInfo() {
-    //   return this.$store.getters["userData/getUserInfo"];
-    // },
-
-  },
-  methods:{
-    //帖子列表
-    getListPosts(){
-      axios.get('http://localhost:5000/api/admin/getPostList')
-      .then(res=>{
-        console.log(res);
+  computed: {},
+  methods: {
+    open() {
+      this.$confirm("确定退出吗, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
       })
+        .then(() => {
+          this.logout()
+          this.$message({
+            type: "success",
+            message: "退出成功!"
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消退出"
+          });
+        });
+    },
+    //上传成功时
+    handleUploadSuccess(response, file, fileList) {
+      // 处理上传成功的逻辑，例如添加文件到 fileList
+      this.fileList = fileList;
+    },
+    //发布
+    release() {
+      const formData = new FormData();
+      formData.append("title", this.form.title);
+      formData.append("content", this.form.content);
+      formData.append("image", this.fileList[0].raw);
+      axios
+        .post("http://localhost:5000/api/posts/create", formData, {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(response => {
+          // 处理成功响应
+          console.log(response.data);
+          this.getListPosts();
+        })
+        .catch(error => {
+          // 处理错误响应
+          console.error(error);
+        });
+    },
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+    },
+    handlePreview(file) {
+      console.log(file);
+    },
+    handleClose(done) {
+      this.$confirm("确认关闭？")
+        .then(res => {
+          console.log(res);
+          done();
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    //退出登录
+    logout() {
+      localStorage.removeItem("token");
+      this.$router.replace({ name: "Home" });
+    },
+    goBack() {
+      console.log("go back");
+    },
+    //帖子列表
+    getListPosts() {
+      axios.get("http://localhost:5000/api/admin/getPostList").then(res => {
+        console.log(res);
+      });
     },
     //用户信息
-    getCurrUserInfo(){
-      const token = localStorage.getItem('token');
-      axios.get('http://localhost:5000/api/user/current/userinfo',{
-        headers:{
-          Authorization: token
-        }
-      })
-      .then(res=>{
-        console.log(res.data);
-        this.userInfo = res.data
-      })
+    getCurrUserInfo() {
+      const token = localStorage.getItem("token");
+      if (token === null || token === undefined || token === "") {
+        alert("用户未登录");
+        return;
+      }
+      axios
+        .get("http://localhost:5000/api/user/current/userinfo", {
+          headers: {
+            Authorization: token
+          }
+        })
+        .then(res => {
+          // console.log(res.data);
+          this.userInfo = res.data;
+        });
     }
   }
 };
 </script>
 
 <style lang="less" scoped>
-.s-box{
-  border: 1px solid ;
-}
-.grid-content-center{
+.grid-content-center {
+  height: 100vh;
   background: #ffffff;
 }
-.grid-content-s{
+.grid-content-s {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -103,11 +226,12 @@ export default {
 .container {
   padding: 0.625rem;
   box-sizing: border-box;
-  height: 100vh;
   background: url("../assets/bg-2.jpg") no-repeat;
   background-size: cover;
 }
 .grid-content-right {
+  padding: 0.625rem;
+  box-sizing: border-box;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -115,5 +239,8 @@ export default {
 }
 .grid-content {
   background: rgba(255, 255, 255, 0.5);
+}
+.el-menu-vertical-demo {
+  width: 100%;
 }
 </style>
