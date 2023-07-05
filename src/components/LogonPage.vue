@@ -38,7 +38,7 @@ export default {
   methods:{
     //注册
     logon(){
-      axios.post('http://localhost:5000/api/user/logon',this.form)
+      axios.post('/api/user/logon',this.form)
       .then(res=>{
         console.log(res);
         this.$router.replace({name:'Login'})

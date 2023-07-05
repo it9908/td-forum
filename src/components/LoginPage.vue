@@ -48,7 +48,7 @@ export default {
     //登录
     login() {
       axios
-        .post("http://localhost:5000/api/user/login", this.form)
+        .post("/api/user/login", this.form)
         .then(response => {
           // 登录成功，获取到 Token
           const token = response.data.token;
@@ -72,7 +72,7 @@ export default {
       const token = localStorage.getItem('token');
       // 使用 Token 获取用户信息
       axios
-        .get("http://localhost:5000/api/user/current/userinfo", {
+        .get("/api/user/current/userinfo", {
           headers: {
             Authorization: token
           }

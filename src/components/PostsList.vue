@@ -1,6 +1,11 @@
 <template>
   <ul class="posts-list" v-infinite-scroll="load">
     <li class="posts-box" v-for="post in listPosts" :key="post.id">
+      <el-row :gutter="10">
+        <el-col :md="4"></el-col>
+        <el-col :md="16"></el-col>
+        <el-col :md="4"></el-col>
+      </el-row>
       <div class="left">
         <el-avatar :size="80" :src="getUser(post.user_id).avatar_url"></el-avatar>
         <div class="username">{{ getUser(post.user_id).username }}</div>
@@ -18,6 +23,7 @@
 import axios from "axios";
 export default {
   name: "PostsList",
+  props: [],
   data() {
     return {
       //帖子列表
@@ -40,21 +46,25 @@ export default {
     getUser(user_id) {
       return (
         this.publisher.find(user => user.id === user_id) || {
-          avatar_url: "http://localhost:5000/api/user/avatar/1.png"
+          avatar_url: "/api/upload/avatar/1.png"
         }
       );
     },
     //获取全部帖子
     getListPosts() {
-      axios.get("http://localhost:5000/api/admin/getPostList").then(res => {
+      axios.get("/api/admin/getPostList",{
+        headers: {
+            Authorization: localStorage.getItem("token")
+          }
+      }).then(res => {
         this.listPosts = res.data;
-        // console.log(res);
+        console.log(this.listPosts);
       });
     },
     //获取发布人信息
     getListuserInfo() {
       axios
-        .get("http://localhost:5000/api/admin/getUserList", {
+        .get("/api/admin/getUserList", {
           headers: {
             Authorization: localStorage.getItem("token")
           }
@@ -75,6 +85,9 @@ export default {
   box-sizing: border-box;
   overflow: auto;
   /* 设置滚动条的宽度和高度 */
+}
+.posts-box {
+  background: #ffffff;
 }
 ::-webkit-scrollbar {
   width: 4px;
@@ -100,7 +113,6 @@ export default {
   margin-bottom: 1rem;
   display: flex;
   box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
   .right {
     margin-left: 1rem;
   }

@@ -10,7 +10,7 @@
         </el-col>
         <el-col :md="16" :lg="16" :xl="18">
           <div class="grid-content-center bg-purple">
-            <router-view></router-view>
+            <router-view ref="routerView"></router-view>
           </div>
         </el-col>
         <el-col :md="4" :lg="4" :xl="3">
@@ -42,7 +42,6 @@
                 <template slot="title">
                   <i class="el-icon-switch-button"></i>
                   <el-button type="text" @click="open">退出登录</el-button>
-                  <!-- <span @click.stop="logout">退出登录</span> -->
                 </template>
               </el-menu-item>
             </el-menu>
@@ -70,7 +69,7 @@
             class="upload-demo"
             name="image"
             :limit="1"
-            action="http://localhost:5000/upload/image"
+            action="/api/upload/image"
             :on-preview="handlePreview"
             :on-remove="handleRemove"
             :on-success="handleUploadSuccess"
@@ -107,11 +106,11 @@ export default {
     };
   },
   mounted() {
-    this.getListPosts();
     this.getCurrUserInfo();
   },
   computed: {},
   methods: {
+    //退出登录
     open() {
       this.$confirm("确定退出吗, 是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -119,7 +118,7 @@ export default {
         type: "warning"
       })
         .then(() => {
-          this.logout()
+          this.logout();
           this.$message({
             type: "success",
             message: "退出成功!"
@@ -144,7 +143,7 @@ export default {
       formData.append("content", this.form.content);
       formData.append("image", this.fileList[0].raw);
       axios
-        .post("http://localhost:5000/api/posts/create", formData, {
+        .post("/api/posts/create", formData, {
           headers: {
             Authorization: localStorage.getItem("token"),
             "Content-Type": "multipart/form-data"
@@ -153,7 +152,18 @@ export default {
         .then(response => {
           // 处理成功响应
           console.log(response.data);
-          this.getListPosts();
+          this.$message('发布成功');
+          this.drawer = false
+          this.form.title = ''
+          this.form.content = ''
+          this.fileList = []
+          const routerView = this.$refs.routerView;
+          const routerName = this.$route.name;
+          if(routerName === "MyPosts"){
+            routerView.getPostdById()
+          } else if(routerName === "PostsList"){
+            routerView.getListPosts()
+          }
         })
         .catch(error => {
           // 处理错误响应
@@ -171,6 +181,7 @@ export default {
         .then(res => {
           console.log(res);
           done();
+          this.fileList = []
         })
         .catch(err => {
           console.log(err);
@@ -184,12 +195,6 @@ export default {
     goBack() {
       console.log("go back");
     },
-    //帖子列表
-    getListPosts() {
-      axios.get("http://localhost:5000/api/admin/getPostList").then(res => {
-        console.log(res);
-      });
-    },
     //用户信息
     getCurrUserInfo() {
       const token = localStorage.getItem("token");
@@ -198,7 +203,7 @@ export default {
         return;
       }
       axios
-        .get("http://localhost:5000/api/user/current/userinfo", {
+        .get("/api/user/current/userinfo", {
           headers: {
             Authorization: token
           }
@@ -207,7 +212,7 @@ export default {
           // console.log(res.data);
           this.userInfo = res.data;
         });
-    }
+    },
   }
 };
 </script>
@@ -215,7 +220,7 @@ export default {
 <style lang="less" scoped>
 .grid-content-center {
   height: 100vh;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.5);
 }
 .grid-content-s {
   display: flex;
