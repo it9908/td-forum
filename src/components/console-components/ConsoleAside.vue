@@ -1,6 +1,6 @@
 <template>
   <el-menu
-    default-active="2"
+    default-active="/console/users"
     class="el-menu-vertical-demo"
     background-color="#545c64"
     text-color="#fff"
@@ -13,11 +13,10 @@
         <span>系统管理</span>
       </template>
       <el-menu-item-group>
-        <el-menu-item index="/console/users" >用户管理</el-menu-item>
+        <el-menu-item index="/console/users">用户管理</el-menu-item>
         <el-menu-item index="/console/posts">帖子管理</el-menu-item>
       </el-menu-item-group>
     </el-submenu>
-
   </el-menu>
 </template>
 
@@ -28,10 +27,11 @@ export default {
 </script>
 
 <style lang="less" scoped>
-/deep/ .el-menu-item-group__title{
-    padding: 0;
+/deep/ .el-menu-item-group__title {
+  padding: 0;
 }
-/deep/ .el-submenu .el-menu-item{
-    min-width: 180px;
+/deep/ .el-submenu .el-menu-item {
+  min-width: 180px;
+
 }
 </style>

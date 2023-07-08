@@ -2,29 +2,21 @@
   <div>
     <el-row>
       <el-col :span="8">
-        <div class="grid-content bg-purple">
-          <el-input placeholder="请输入id" v-model="input4" @keyup.enter.native="getUserInfoById">
-            <i slot="prefix" class="el-input__icon el-icon-search"></i>
-          </el-input>
-          <el-button type="primary" size="mini" @click="getUserInfoById">查找</el-button>
-        </div>
+        <el-row type="flex" class="row-bg" justify="space-around">
+          <el-col :span="8">
+            <el-input placeholder="请输入id" v-model="user_id" @keyup.enter.native="getUserInfoById">
+              <i slot="prefix" class="el-input__icon el-icon-search"></i>
+            </el-input>
+          </el-col>
+          <el-col :span="14">
+            <el-container>
+              <el-button type="primary" size="mini" @click="getUserInfoById">查找</el-button>
+            </el-container>
+          </el-col>
+        </el-row>
       </el-col>
-      <el-col :span="8">
-        <div class="grid-content bg-purple-light">
-          <el-input placeholder="请输入id" v-model="input4" @keyup.enter.native="getUserInfoById">
-            <i slot="prefix" class="el-input__icon el-icon-search"></i>
-          </el-input>
-          <el-button type="primary" size="mini" @click="getUserInfoById">查找</el-button>
-        </div>
-      </el-col>
-      <el-col :span="8">
-        <div class="grid-content bg-purple">
-          <el-input placeholder="请输入id" v-model="input4" @keyup.enter.native="getUserInfoById">
-            <i slot="prefix" class="el-input__icon el-icon-search"></i>
-          </el-input>
-          <el-button type="primary" size="mini" @click="getUserInfoById">查找</el-button>
-        </div>
-      </el-col>
+      <el-col :span="8"></el-col>
+      <el-col :span="8"></el-col>
     </el-row>
     <el-table
       v-loading="loading"
@@ -52,8 +44,8 @@
       <el-table-column prop="identity" label="权限" width="80"></el-table-column>
       <el-table-column prop="create_time" label="注册时间" width="200"></el-table-column>
       <el-table-column fixed="right" label="操作" width="150">
-        <template slot-scope>
-          <el-button size="mini" type="danger">查看</el-button>
+        <template slot-scope="scope">
+          <el-button size="mini" type="danger" @click="handleClick(scope.row)">查看</el-button>
           <el-button size="mini" type="primary">删除</el-button>
         </template>
       </el-table-column>
@@ -69,6 +61,64 @@
         :total="count"
       ></el-pagination>
     </div>
+    <!-- 查看抽屉 -->
+    <el-drawer title="用户信息" :visible.sync="viewDrawer" :direction="'ltr'">
+      <div class="pad">
+        <el-descriptions title="用户信息" :column="2" border>
+          <template slot="extra">
+            <!-- 编辑框 -->
+            <el-popover placement="right" width="400" trigger="click">
+              <el-form ref="form" :model="currentUserInfo" label-width="80px">
+                <el-form-item label="头像">
+                  <el-image
+                    style="width: 100px; height: 100px"
+                    :src="currentUserInfo.avatar_url"
+                    :fit="'contain'"
+                  ></el-image>
+                </el-form-item>
+                <el-form-item label="id">
+                  <el-input v-model="currentUserInfo.id" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="账号">
+                  <el-input v-model="currentUserInfo.username" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="密码">
+                  <el-input v-model="currentUserInfo.password"></el-input>
+                </el-form-item>
+                <el-form-item label="权限">
+                  <el-input v-model="currentUserInfo.identity"></el-input>
+                </el-form-item>
+                <el-form-item label="注册时间">
+                  <el-input v-model="currentUserInfo.create_time" disabled></el-input>
+                </el-form-item>
+                <el-form-item>
+                  <el-button type="primary">修改</el-button>
+                </el-form-item>
+              </el-form>
+              <el-button
+                slot="reference"
+                type="primary"
+                size="small"
+                @click="editCurrentUserInfo(currentUserInfo)"
+              >编辑</el-button>
+            </el-popover>
+          </template>
+          <el-descriptions-item label="id">{{currentUserInfo.id}}</el-descriptions-item>
+          <el-descriptions-item label="昵称">{{currentUserInfo.username}}</el-descriptions-item>
+          <el-descriptions-item label="密码">{{currentUserInfo.password}}</el-descriptions-item>
+          <el-descriptions-item label="头像">
+            <el-image
+              style="width: 100px; height: 100px"
+              :src="currentUserInfo.avatar_url"
+              :fit="'contain'"
+              lazy
+            ></el-image>
+          </el-descriptions-item>
+          <el-descriptions-item label="权限">{{currentUserInfo.identity}}</el-descriptions-item>
+          <el-descriptions-item label="注册时间">{{currentUserInfo.create_time}}</el-descriptions-item>
+        </el-descriptions>
+      </div>
+    </el-drawer>
   </div>
 </template>
 
@@ -78,7 +128,9 @@ export default {
   name: "AdUsers",
   data() {
     return {
-      loading:true,
+      viewDrawer: false,
+      user_id: "",
+      loading: true,
       input4: "",
       listUsers: [],
       count: undefined,
@@ -86,7 +138,9 @@ export default {
       params: {
         currentPage: 1,
         pageSize: 5
-      }
+      },
+      // 当前用户信息
+      currentUserInfo: []
     };
   },
   created() {
@@ -95,14 +149,14 @@ export default {
   methods: {
     //每页n条
     handleSizeChange(val) {
-      this.loading = true
+      this.loading = true;
       this.params.pageSize = val;
       this.initTable();
       console.log(`每页 ${val} 条`);
     },
     //换页
     handleCurrentChange(val) {
-      this.loading = true
+      this.loading = true;
       this.params.currentPage = val;
       this.initTable();
       console.log(`当前页: ${val}`);
@@ -114,7 +168,7 @@ export default {
           `/api/admin/users/${this.params.currentPage}/${this.params.pageSize}`
         )
         .then(res => {
-          console.log(res.data);  
+          console.log(res.data);
           this.loading = false;
           this.listUsers = res.data.items;
           this.count = res.data.totalItems;
@@ -122,13 +176,46 @@ export default {
     },
     // 根据id查找
     getUserInfoById() {
-      alert(1);
+      this.loading = true;
+      axios
+        .get(`/api/admin/getUserInfoById/${this.user_id}`)
+        .then(res => {
+          console.log(res);
+          this.listUsers = res.data;
+          this.loading = false;
+        })
+        .catch(err => {
+          console.log(err);
+          this.initTable();
+        });
+    },
+    //
+    handleClick(row) {
+      this.viewDrawer = true;
+      console.log(row);
+      this.currentUserInfo = row;
+    },
+    //编辑当前用户信息
+    editCurrentUserInfo(userInfo) {
+      console.log(userInfo);
+      this.currentUserInfo = userInfo;
     }
   }
 };
 </script>
 
 <style style lang="less" scoped>
+.pad {
+  padding: 0px 6px 0px 20px;
+}
+.el-row {
+  margin-bottom: 20px;
+}
+.el-col-14 {
+  display: flex;
+  // justify-content: center;
+  align-items: center;
+}
 .grid-content {
   display: flex;
 }
