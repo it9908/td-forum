@@ -21,6 +21,7 @@
 </template>
 
 <script>
+import { decodeToken } from "../utils/check";
 import axios from "axios";
 export default {
   name: "LoginPage",
@@ -35,15 +36,6 @@ export default {
       }
     };
   },
-  mounted() {},
-  computed: {
-    // token() {
-    //   return this.$store.getters["userData/getToken"];
-    // },
-    isAuth() {
-      return this.$store.getters["userData/userInfo"];
-    }
-  },
   methods: {
     //登录
     login() {
@@ -54,40 +46,21 @@ export default {
           const token = response.data.token;
           // 将 token 存储到 Local Storage
           localStorage.setItem("token", token);
-
-          // 将 Token 存储到 Vuex 的 userData 模块中
-          this.$store.dispatch("userData/saveToken", token).then(() => {
-            // Token 存储完成后，通过 Token 获取用户信息
-            this.fetchUserInfoAndRedirect();
-          });
+          const decodedToken = decodeToken(token);
+          console.log(decodedToken);
+          switch (decodedToken.identity) {
+            case 1:
+              this.$router.replace({ name: "Forum" });
+              break;
+            case 2:
+              this.$router.replace({ name: "Console" });
+              break;
+            default:
+              this.$router.replace({ name: "Forum" });
+          }
         })
         .catch(error => {
           // 处理登录失败的情况
-          console.log(error);
-        });
-    },
-
-    // 获取用户信息并进行路由跳转
-    fetchUserInfoAndRedirect() {
-      const token = localStorage.getItem('token');
-      // 使用 Token 获取用户信息
-      axios
-        .get("/api/user/current/userinfo", {
-          headers: {
-            Authorization: token
-          }
-        })
-        .then(response => {
-          // 获取到用户信息
-          const userInfo = response.data;
-          console.log(userInfo);
-          // 将用户信息存储到 Vuex 的 userData 模块中
-          this.$store.dispatch("userData/saveUserInfo", userInfo).then(() => {
-            this.$router.replace("/console");
-          });
-        })
-        .catch(error => {
-          // 处理获取用户信息失败的情况
           console.log(error);
         });
     }

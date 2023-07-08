@@ -16,12 +16,12 @@
         <el-col :md="4" :lg="4" :xl="3">
           <div class="grid-content grid-content-right">
             <el-avatar :size="60" :src="userInfo.avatar"></el-avatar>
-            <span>{{userInfo.username}}</span>
+            <span>{{ userInfo.username }}</span>
             <el-row class="s-box" :gutter="10">
               <el-col :span="12">
                 <div class="grid-content-s">
                   <i class="el-icon-chat-line-square"></i>
-                  <router-link to="/forum/myposts">我的帖子</router-link>
+                  <el-link type="primary" @click="goMyPosts">主要链接</el-link>
                 </div>
               </el-col>
               <el-col :span="12">
@@ -69,7 +69,7 @@
             class="upload-demo"
             name="image"
             :limit="1"
-            action="/api/upload/image"
+            action="http://localhost:5000/upload/image"
             :on-preview="handlePreview"
             :on-remove="handleRemove"
             :on-success="handleUploadSuccess"
@@ -89,9 +89,10 @@
 </template>
 
 <script>
+import { decodeToken } from "@/utils/check";
 import axios from "axios";
 export default {
-  name: "MyForum",
+  name: "MyForum", 
   data() {
     return {
       form: {
@@ -110,7 +111,26 @@ export default {
   },
   computed: {},
   methods: {
-    //退出登录
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+    },
+    handlePreview(file) {
+      console.log(file);
+    },
+    handleClose(done) {
+      this.$confirm("确认关闭？")
+        .then(res => {
+          console.log(res);
+          done();
+          this.form.title = "";
+          this.form.content = "";
+          this.fileList = [];
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    // 是否退出登录
     open() {
       this.$confirm("确定退出吗, 是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -131,19 +151,24 @@ export default {
           });
         });
     },
-    //上传成功时
+    // 退出登录
+    logout() {
+      localStorage.removeItem("token");
+      this.$router.replace({ name: "Home" });
+    },
+    // 上传成功时
     handleUploadSuccess(response, file, fileList) {
       // 处理上传成功的逻辑，例如添加文件到 fileList
       this.fileList = fileList;
     },
-    //发布
+    // 发布
     release() {
       const formData = new FormData();
       formData.append("title", this.form.title);
       formData.append("content", this.form.content);
       formData.append("image", this.fileList[0].raw);
       axios
-        .post("/api/posts/create", formData, {
+        .post("/api/upload/posts/create", formData, {
           headers: {
             Authorization: localStorage.getItem("token"),
             "Content-Type": "multipart/form-data"
@@ -152,17 +177,17 @@ export default {
         .then(response => {
           // 处理成功响应
           console.log(response.data);
-          this.$message('发布成功');
-          this.drawer = false
-          this.form.title = ''
-          this.form.content = ''
-          this.fileList = []
+          this.$message("发布成功");
+          this.drawer = false;
+          this.form.title = "";
+          this.form.content = "";
+          this.fileList = [];
           const routerView = this.$refs.routerView;
           const routerName = this.$route.name;
-          if(routerName === "MyPosts"){
-            routerView.getPostdById()
-          } else if(routerName === "PostsList"){
-            routerView.getListPosts()
+          if (routerName === "MyPosts") {
+            routerView.getPostdById();
+          } else if (routerName === "PostsList") {
+            routerView.getListPosts();
           }
         })
         .catch(error => {
@@ -170,49 +195,29 @@ export default {
           console.error(error);
         });
     },
-    handleRemove(file, fileList) {
-      console.log(file, fileList);
-    },
-    handlePreview(file) {
-      console.log(file);
-    },
-    handleClose(done) {
-      this.$confirm("确认关闭？")
-        .then(res => {
-          console.log(res);
-          done();
-          this.fileList = []
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    },
-    //退出登录
-    logout() {
-      localStorage.removeItem("token");
-      this.$router.replace({ name: "Home" });
-    },
+    // 返回首页
     goBack() {
       console.log("go back");
     },
-    //用户信息
+    // 获取用户信息
     getCurrUserInfo() {
       const token = localStorage.getItem("token");
       if (token === null || token === undefined || token === "") {
-        alert("用户未登录");
+        //当未登录时
+        const unlisted = {
+          username: "未登录",
+          avatar: "http://localhost:5000/upload/avatar/3.png"
+        };
+        this.userInfo = { ...unlisted };
         return;
       }
-      axios
-        .get("/api/user/current/userinfo", {
-          headers: {
-            Authorization: token
-          }
-        })
-        .then(res => {
-          // console.log(res.data);
-          this.userInfo = res.data;
-        });
+      // 登录后
+      this.userInfo = decodeToken(token);
     },
+    //
+    goMyPosts() {
+      this.$router.push({ name: "MyPosts" });
+    }
   }
 };
 </script>

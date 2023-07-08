@@ -1,30 +1,49 @@
 <template>
-  <div>我是控制台</div>
+  <div class="outer-container">
+    <el-header style="height:5rem">
+      <ConsoleHeader></ConsoleHeader>
+    </el-header>
+    <div class="inner-container">
+      <el-aside width="180px">
+        <ConsoleAside></ConsoleAside>
+      </el-aside>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
+    </div>
+  </div>
 </template>
 
 <script>
+import ConsoleHeader from "@/components/console-components/ConsoleHeader.vue";
+import ConsoleAside from "@/components/console-components/ConsoleAside.vue";
 export default {
-  name: "AdminConsole",
-  beforeRouteEnter(to, from, next) {
-    next(vm => {
-      // 获取权限信息
-      const userInfo = vm.$store.getters["userData/getUserInfo"].identity;
-      console.log(userInfo);
-      // 进行权限判断
-      if (to.meta.requiresAuth) {
-        console.log(userInfo === 2);
-        if (userInfo === 2) {
-          // 权限为 2，可以进入控制台页
-          next();
-        } else {
-          //不是管理员则导航到论坛页面
-          next({ name: "Forum" });
-        }
-      }
-    });
-  }
+  components: {
+    ConsoleHeader,
+    ConsoleAside
+  },
+  name: "AdminConsole"
 };
 </script>
 
 <style lang="less" scoped>
+.outer-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.inner-container {
+  display: flex;
+  flex: 1;
+}
+.el-main {
+  // flex: 1;
+  padding: 0.625rem;
+}
+.el-header {
+  background: #222f3e;
+}
+.el-aside {
+  background: #576574;
+}
 </style>

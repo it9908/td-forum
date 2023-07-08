@@ -52,26 +52,18 @@ export default {
     },
     //获取全部帖子
     getListPosts() {
-      axios.get("/api/admin/getPostList",{
-        headers: {
-            Authorization: localStorage.getItem("token")
-          }
-      }).then(res => {
-        this.listPosts = res.data;
+      axios.get("/api/admin/getPostList").then(res => {
+        this.listPosts = res.data.data;
         console.log(this.listPosts);
       });
     },
     //获取发布人信息
     getListuserInfo() {
       axios
-        .get("/api/admin/getUserList", {
-          headers: {
-            Authorization: localStorage.getItem("token")
-          }
-        })
+        .get("/api/admin/getUserList")
         .then(res => {
           this.publisher = res.data;
-          // console.log(res);
+          console.log(res);
         });
     }
   }

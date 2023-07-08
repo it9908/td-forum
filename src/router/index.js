@@ -1,5 +1,4 @@
 import Vue from 'vue'
-// import store from '../store/index'
 import Router from 'vue-router'
 
 Vue.use(Router)
@@ -52,25 +51,26 @@ const router = new Router({
         },
         {
             path: '/console',
-            name: "Console",
+            name: 'Console',
+            redirect: '/console/users',
             component: () => import('@/components/AdminConsole.vue'),
             meta: {
                 requiresAuth: true
-            }
+            },
+            children:[
+                {
+                    path: 'users',
+                    name: 'AdUsers',
+                    component: ()=> import('@/components/console-components/AdUsers.vue')
+                },
+                {
+                    path: 'posts',
+                    name: 'AdPosts',
+                    component: ()=> import('@/components/console-components/AdPosts.vue')
+                }
+            ]
         }
     ]
 })
-
-// router.beforeEach((to, from, next) => {
-//     console.log(to, from);
-//     console.log(store.getters['userData/getUserInfo'].identity);
-//     // 判断目标路由是否需要进行权限验证
-//     if (to.meta.requiresAuth) {
-//     } else {
-//         // 不需要权限验证的路由，直接通过
-//         next();
-//     }
-// });
-
 
 export default router

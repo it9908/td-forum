@@ -35,13 +35,13 @@
           <el-input type="textarea" v-model="currentPosts.content" :rows="5"></el-input>
         </el-form-item>
         <el-form-item label="封面">
-          <el-image :src="currentPosts.image_url"></el-image>
+          <el-image :src="currentPosts.image_url" lazy></el-image>
         </el-form-item>
         <el-form-item label="发布时间">
           <el-input v-model="currentPosts.publish_time" disabled></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary">修改</el-button>
+          <el-button type="primary" @click="updatePostsById">修改</el-button>
         </el-form-item>
       </el-form>
     </el-drawer>
@@ -74,6 +74,7 @@ export default {
       const token = localStorage.getItem("token");
       if (token === null || token === undefined || token === "") {
         alert("用户未登录");
+        this.$router.replace({name:"Login"})
         return;
       }
       axios
@@ -94,10 +95,29 @@ export default {
       this.currentPosts = params;
       this.drawer = true;
     },
+    // 修改
+    updatePostsById() {
+      axios
+        .post(`api/user/updatePostsById/${this.currentPosts.id}`, {
+          formData: this.currentPosts
+        })
+        .then(res => {
+          console.log(res.data);
+          if (res.data.code === 200) {
+            this.drawer = false;
+            this.$message({
+              message: "修改成功",
+              type: "success"
+            });
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
     //删除
     delPosts(params, index) {
       console.log(params, index);
-      //  const token = localStorage.getItem("token");
       axios
         .post("/api/user/del/myPosts", {
           data: {
@@ -110,6 +130,10 @@ export default {
         .then(res => {
           console.log(res.data);
           this.getPostdById();
+          this.$message({
+            message: "删除成功",
+            type: "success"
+          });
         })
         .catch(err => {
           console.log(err);
@@ -120,6 +144,7 @@ export default {
         .then(res => {
           done();
           console.log(res);
+
         })
         .catch(err => {
           err;

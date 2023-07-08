@@ -3,14 +3,18 @@
     <el-row>
       <el-col :span="16">
         <div class="grid-content bg-purple">
-          <el-image style="width: 80px; height: 60px" :src="url" :fit="fit"></el-image>
+          <el-image
+            style="width: 80px; height: 60px"
+            :src="require('@/assets/logo.png')"
+            :fit="'cover'"
+          ></el-image>
         </div>
       </el-col>
       <el-col :span="8">
         <div class="grid-content bg-purple-light">
           <el-menu
             router
-            :default-active="activeIndex"
+            :default-active="$route.path"
             class="el-menu-demo"
             mode="horizontal"
             @select="handleSelect"
@@ -18,10 +22,10 @@
             text-color="#ffffff"
             active-text-color="#ffffff"
           >
-            <el-menu-item route index="/home">Home</el-menu-item>
-            <el-menu-item route index="/forum">forum</el-menu-item>
-            <el-menu-item route index="/home/login">Login</el-menu-item>
-            <el-menu-item route index="/home/logon">Logon</el-menu-item>
+            <el-menu-item index="/home">Home</el-menu-item>
+            <el-menu-item index="/forum">forum</el-menu-item>
+            <el-menu-item index="/home/login">Login</el-menu-item>
+            <el-menu-item index="/home/logon">Logon</el-menu-item>
           </el-menu>
         </div>
       </el-col>
@@ -33,12 +37,7 @@
 export default {
   name: "MyHeader",
   data() {
-    return {
-      fit: "cover",
-      url: require("@/assets/logo.png"),
-      activeIndex: "1",
-      activeIndex2: "1"
-    };
+    return {};
   },
   methods: {
     handleSelect(key, keyPath) {
