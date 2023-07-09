@@ -1,6 +1,6 @@
 <template>
   <div class="outer-container">
-    <el-header style="height:5rem">
+    <el-header style="height:5rem;width:100vw">
       <ConsoleHeader></ConsoleHeader>
     </el-header>
     <div class="inner-container">
@@ -30,6 +30,7 @@ export default {
 .outer-container {
   display: flex;
   flex-direction: column;
+  width: 100vw;
   height: 100vh;
 }
 .inner-container {
@@ -37,7 +38,6 @@ export default {
   flex: 1;
 }
 .el-main {
-  // flex: 1;
   padding: 0.625rem;
 }
 .el-header {
