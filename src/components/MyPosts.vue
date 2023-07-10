@@ -78,7 +78,7 @@ export default {
         return;
       }
       axios
-        .get("/api/user/myposts", {
+        .get("/api/myposts", {
           headers: {
             Authorization: localStorage.getItem("token")
           }
@@ -98,7 +98,7 @@ export default {
     // 修改
     updatePostsById() {
       axios
-        .post(`api/user/updatePostsById/${this.currentPosts.id}`, {
+        .post(`api/updatePostsById/${this.currentPosts.id}`, {
           formData: this.currentPosts
         })
         .then(res => {
@@ -119,7 +119,7 @@ export default {
     delPosts(params, index) {
       console.log(params, index);
       axios
-        .post("/api/user/del/myPosts", {
+        .post("/api/del/myPosts", {
           data: {
             posts_id: params.id
           },

@@ -18,7 +18,11 @@
       <el-col :span="8">
         <el-row type="flex" class="row-bg" justify="space-around">
           <el-col :span="8">
-            <el-input placeholder="请输入昵称" v-model="keywords" @keyup.enter.native="getUserInfoByName">
+            <el-input
+              placeholder="请输入昵称"
+              v-model="keywords"
+              @keyup.enter.native="getUserInfoByName"
+            >
               <i slot="prefix" class="el-input__icon el-icon-search"></i>
             </el-input>
           </el-col>
@@ -113,7 +117,7 @@
                 slot="reference"
                 type="primary"
                 size="small"
-                @click="editCurrentUserInfo(currentUserInfo)"
+                @click="editCurrentUserInfo"
               >编辑</el-button>
             </el-popover>
           </template>
@@ -137,20 +141,28 @@
 </template>
 
 <script>
-import axios from "axios";
+import { get, post } from "@/axios/api";
 export default {
   name: "AdUsers",
   data() {
     return {
+      // 名字关键字
       keywords: "",
+      // 编辑框状态
       visible: false,
+      // 用户信息抽屉状态
       viewDrawer: false,
+      // 需要查找的用户id
       user_id: "",
+      // 加载状态
       loading: true,
-      input4: "",
+      // 用户信息列表
       listUsers: [],
+      // 总条数
       count: undefined,
+      // 单页条数
       arr: [5, 10, 20],
+      // 分页查询参数
       params: {
         currentPage: 1,
         pageSize: 5
@@ -172,14 +184,24 @@ export default {
     }
   },
   methods: {
-    //每页n条
+    // 关闭编辑框
+    colse() {
+      this.visible = false;
+      this.editCurrentUserInfo();
+    },
+    // 当前查看的用户信息抽屉
+    handleClick(row) {
+      this.viewDrawer = true;
+      this.currentUserInfo = row;
+    },
+    // 每页n条
     handleSizeChange(val) {
       this.loading = true;
       this.params.pageSize = val;
       this.initTable();
       console.log(`每页 ${val} 条`);
     },
-    //换页
+    // 换页
     handleCurrentChange(val) {
       this.loading = true;
       this.params.currentPage = val;
@@ -188,25 +210,24 @@ export default {
     },
     // 分页查询
     initTable() {
-      axios
-        .get(
-          `/api/admin/users/${this.params.currentPage}/${this.params.pageSize}`
-        )
-        .then(res => {
-          console.log(res.data);
+      // 使用封装的请求方法，传递动态参数
+      get(`/api/admin/users/${this.params.currentPage}/${this.params.pageSize}`)
+        .then(response => {
           this.loading = false;
-          this.listUsers = res.data.items;
-          this.count = res.data.totalItems;
+          this.listUsers = response.items;
+          this.count = response.totalItems;
+        })
+        .catch(error => {
+          console.log(error);
         });
     },
     // 根据id查找
     getUserInfoById() {
       this.loading = true;
-      axios
-        .get(`/api/admin/getUserInfoById/${this.user_id}`)
+      get(`/api/admin/getUserInfoById/${this.user_id}`)
         .then(res => {
           console.log(res);
-          this.listUsers = res.data.data;
+          this.listUsers = res.data;
           this.loading = false;
         })
         .catch(err => {
@@ -217,11 +238,10 @@ export default {
     // 根据昵称模糊查找
     getUserInfoByName() {
       this.loading = true;
-      axios
-        .get(`/api/admin/getUserInfoByName/${this.keywords}`)
+      get(`/api/admin/getUserInfoByName/${this.keywords}`)
         .then(res => {
           console.log(res);
-          this.listUsers = res.data.data;
+          this.listUsers = res.data;
           this.loading = false;
         })
         .catch(err => {
@@ -229,50 +249,35 @@ export default {
           this.initTable();
         });
     },
-    //
-    handleClick(row) {
-      this.viewDrawer = true;
-      console.log(row);
-      this.currentUserInfo = row;
-    },
-    //编辑当前用户信息
+    // 编辑页面当前用户信息
     editCurrentUserInfo() {
-      axios
-        .get(`/api/admin/getUserInfoById/${this.currentUserInfo.id}`)
-        .then(res => {
-          console.log(res.data);
-          this.currentUserInfo = res.data[0];
-        });
+      get(`/api/admin/getUserInfoById/${this.currentUserInfo.id}`).then(res => {
+        this.currentUserInfo = res.data[0];
+      });
     },
     // 修改用户权限
     updateUserIdentity() {
       const { id, identity } = { ...this.currentUserInfo };
-      axios
-        .post(`/api/admin/updateUserInfo/${id}`, { identity })
-        .then(res => {
-          console.log(res.data);
-          if (res.data.code === 200) {
+      post(`/api/admin/updateUserInfo/${id}`, { identity })
+        .then(response => {
+          console.log(response);
+          if (response.code === 200) {
             this.$notify({
               title: "成功",
               message: "修改成功",
               type: "success",
               duration: 3000
             });
-          } else if (res.data.code === 201) {
+          } else if (response.code === 201) {
             this.$notify.error({
               title: "错误",
-              message: res.data.message
+              message: response.message
             });
           }
         })
-        .catch(err => {
-          console.log(err);
+        .catch(error => {
+          console.log(error);
         });
-    },
-    //
-    colse() {
-      this.visible = false;
-      this.editCurrentUserInfo();
     },
     // 删除用户
     delUser(row) {
@@ -283,9 +288,9 @@ export default {
       })
         .then(() => {
           const { id } = { ...row };
-          axios.post(`/api/admin/delUser/${id}`).then(res => {
-            console.log(res.data);
-            if (res.data.code === 200) {
+          post(`/api/admin/delUser/${id}`).then(res => {
+            console.log(res);
+            if (res.code === 200) {
               this.initTable();
             }
           });

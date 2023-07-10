@@ -40,7 +40,7 @@ export default {
     //登录
     login() {
       axios
-        .post("/api/user/login", this.form)
+        .post("/api/login", this.form)
         .then(response => {
           // 登录成功，获取到 Token
           const token = response.data.token;

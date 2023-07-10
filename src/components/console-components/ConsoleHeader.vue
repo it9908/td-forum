@@ -134,7 +134,7 @@ export default {
       }
       // 登录后
       axios
-        .get(`api/user/current/userinfo`, {
+        .get(`/api/current/userinfo`, {
           headers: {
             Authorization: localStorage.getItem("token")
           }
