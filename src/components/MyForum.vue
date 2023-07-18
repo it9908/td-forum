@@ -4,8 +4,15 @@
       <el-row :gutter="10">
         <el-col :md="4" :lg="4" :xl="3">
           <div class="grid-content bg-purple-light">
-            <el-page-header @back="goBack" content="详情页面"></el-page-header>
-            <router-link to="/forum">全部帖子</router-link>
+            <el-page-header @back="goBack" title="首页" content="论坛中心"></el-page-header>
+            <el-menu
+              router
+            >
+              <el-menu-item index="/forum">
+                <i class="el-icon-setting"></i>
+                <span slot="title">全部帖子</span>
+              </el-menu-item>
+            </el-menu>
           </div>
         </el-col>
         <el-col :md="16" :lg="16" :xl="18">
@@ -18,16 +25,10 @@
             <el-avatar :size="60" :src="userInfo.avatar"></el-avatar>
             <span>{{ userInfo.username }}</span>
             <el-row class="s-box" :gutter="10">
-              <el-col :span="12">
+              <el-col :span="24">
                 <div class="grid-content-s">
                   <i class="el-icon-chat-line-square"></i>
-                  <el-link type="primary" @click="goMyPosts">主要链接</el-link>
-                </div>
-              </el-col>
-              <el-col :span="12">
-                <div class="grid-content-s">
-                  <i class="el-icon-chat-line-square"></i>
-                  <router-link to="/forum/mycomment">我的评论</router-link>
+                  <el-link type="info" @click="goMyPosts">我的帖子</el-link>
                 </div>
               </el-col>
             </el-row>
@@ -92,7 +93,7 @@
 import { decodeToken } from "@/utils/check";
 import axios from "axios";
 export default {
-  name: "MyForum", 
+  name: "MyForum",
   data() {
     return {
       form: {
@@ -198,6 +199,7 @@ export default {
     // 返回首页
     goBack() {
       console.log("go back");
+      this.$router.push({name:"Home"})
     },
     // 获取用户信息
     getCurrUserInfo() {
@@ -217,14 +219,20 @@ export default {
     //
     goMyPosts() {
       this.$router.push({ name: "MyPosts" });
+    },
+    goComment() {
+      this.$router.push({ name: "MyComment" });
     }
   }
 };
 </script>
 
 <style lang="less" scoped>
-.grid-content-center {
+.bg-purple-light {
+  background: #ffffff;
   height: 100vh;
+}
+.grid-content-center {
   background: rgba(255, 255, 255, 0.5);
 }
 .grid-content-s {
@@ -232,11 +240,12 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  background: #ffffff;
 }
 .container {
   padding: 0.625rem;
   box-sizing: border-box;
-  background: url("../assets/bg-2.jpg") no-repeat;
+
   background-size: cover;
 }
 .grid-content-right {
@@ -246,10 +255,9 @@ export default {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  background: #ffffff;
 }
-.grid-content {
-  background: rgba(255, 255, 255, 0.5);
-}
+
 .el-menu-vertical-demo {
   width: 100%;
 }

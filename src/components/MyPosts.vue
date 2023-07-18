@@ -15,7 +15,9 @@
         <el-col :sm="4" :md="4" :lg="4" :xl="4">
           <div class="btn-box">
             <el-button type="primary" @click.stop="postsEdit(item, index)">编辑</el-button>
-            <el-button type="success" @click.stop="delPosts(item, index)">删除</el-button>
+            <el-popconfirm title="这是一段内容确定删除吗？" @confirm="delPosts(item, index)">
+              <el-button slot="reference">删除</el-button>
+            </el-popconfirm>
           </div>
         </el-col>
       </el-row>
@@ -74,7 +76,7 @@ export default {
       const token = localStorage.getItem("token");
       if (token === null || token === undefined || token === "") {
         alert("用户未登录");
-        this.$router.replace({name:"Login"})
+        this.$router.replace({ name: "Login" });
         return;
       }
       axios
@@ -144,7 +146,6 @@ export default {
         .then(res => {
           done();
           console.log(res);
-
         })
         .catch(err => {
           err;

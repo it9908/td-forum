@@ -3,69 +3,86 @@
     <el-form ref="form" :model="form" label-width="80px">
       <el-form-item>
         <span slot="label">
-          <span style="color: #ffffff">账号</span>
+          <span style="color: #ffffff">用户名</span>
         </span>
-        <el-input v-model.trim="form.username"></el-input>
+        <el-input placeholder="只能输入5-11位的用户名" v-model.trim="form.username"></el-input>
       </el-form-item>
       <el-form-item>
         <span slot="label">
           <span style="color: #ffffff">密码</span>
         </span>
-        <el-input placeholder="请输入密码" v-model="form.password" show-password></el-input>
+        <el-input placeholder="6-12位字母大小写+数字组合" v-model.trim="form.password" show-password></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button class="btn" size="small" @click="logon">注册</el-button>
+        <span slot="label">
+          <span style="color: #ffffff">重复密码</span>
+        </span>
+        <el-input placeholder="请重复密码" v-model.trim="form.password2" show-password></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click.stop="logon">注册</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
+<style lang="less" scoped>
+.login-box {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  span {
+    color: #ffffff;
+  }
+}
+</style>
+
 <script>
-import axios from 'axios';
+import axios from "axios";
 export default {
   name: "LogonPage",
-  data(){
-    return{
+  data() {
+    return {
       //登录信息
-      form:{
+      form: {
         //账号
-        username:'',
+        username: "",
         //密码
-        password:'',
+        password: "",
+        password2: ""
       }
-    }
+    };
   },
-  methods:{
+  methods: {
     //注册
-    logon(){
-      axios.post('/api/logon',this.form)
-      .then(res=>{
-        console.log(res);
-        this.$router.replace({name:'Login'})
-      })
-      .catch(err=>{
-        console.log(err);
-      })
+    logon() {
+      axios
+        .post("/api/logon", this.form)
+        .then(res => {
+          console.log(res);
+          if (res.data.code === 200) {
+            this.$message({
+              message: res.data.message,
+              type: "success",
+              offset: 100
+            });
+            setTimeout(() => {
+              this.$router.replace({ name: "Login" });
+            }, 2000);
+            return;
+          }
+          this.$message({
+            message: res.data.message,
+            type: "warning",
+            offset: 100
+          });
+        })
+        .catch(err => {
+          console.log(err);
+        });
     }
   }
 };
 </script>
 
-<style lang="less" scoped>
-.el-form-item:nth-of-type(3) {
-  display: flex;
-  justify-content: center;
-  .btn {
-    width: 100%;
-  }
-}
-.login-box {
-  width: 340px;
-  padding-top: 1.25rem;
-  box-sizing: border-box;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-</style>

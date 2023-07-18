@@ -1,26 +1,25 @@
 <template>
-  <ul class="posts-list" v-infinite-scroll="load">
-    <li class="posts-box" v-for="post in listPosts" :key="post.id">
-      <el-row :gutter="10">
-        <el-col :md="4"></el-col>
-        <el-col :md="16"></el-col>
-        <el-col :md="4"></el-col>
-      </el-row>
-      <div class="left">
-        <el-avatar :size="80" :src="getUser(post.user_id).avatar_url"></el-avatar>
-        <div class="username">{{ getUser(post.user_id).username }}</div>
-      </div>
-      <div class="right">
-        <div class="posts-title">{{ post.title }}</div>
-        <p>{{ post.content }}</p>
-        <div class>{{ post.publish_time }}</div>
-      </div>
-    </li>
-  </ul>
+  <div class="waterfall-container">
+    <el-row :gutter="10">
+      <el-col v-for="(p, index) in listPosts" :key="index" :span="6">
+        <div class="post-item" @click="goToPostDetail(p.id)">
+          <div class="avatar-nickname">
+            <div class="avatar">
+              <img :src="getUser(p.user_id).avatar_url" alt="User Avatar" />
+            </div>
+            <div class="nickname">{{ getUser(p.user_id).username }}</div>
+          </div>
+          <div class="post-title">{{ p.title }}</div>
+          <div class="publish-time">{{ p.publish_time }}</div>
+        </div>
+      </el-col>
+    </el-row>
+  </div>
 </template>
 
 <script>
-import axios from "axios";
+import { get } from "@/axios/api";
+
 export default {
   name: "PostsList",
   props: [],
@@ -33,12 +32,17 @@ export default {
       count: 0
     };
   },
-  created() {},
+
   mounted() {
     this.getListPosts();
     this.getListuserInfo();
   },
   methods: {
+    goToPostDetail(postId) {
+      // 使用路由导航进行页面跳转，将点击的帖子ID传递给详情页组件
+      localStorage.setItem("postId", postId);
+      this.$router.push({ name: "PostDetail", params: { postId } });
+    },
     load() {
       this.count += 2;
     },
@@ -52,69 +56,89 @@ export default {
     },
     //获取全部帖子
     getListPosts() {
-      axios.get("/api/admin/getPostList").then(res => {
-        this.listPosts = res.data.data;
-        console.log(this.listPosts);
+      get("/api/admin/getPostList").then(res => {
+        console.log(res);
+        this.listPosts = res.data;
       });
     },
     //获取发布人信息
     getListuserInfo() {
-      axios
-        .get("/api/admin/getUserList")
-        .then(res => {
-          this.publisher = res.data;
-          console.log(res);
-        });
+      get("/api/admin/getUserList").then(res => {
+        console.log(res);
+        this.publisher = res;
+      });
     }
   }
 };
 </script>
 
 <style lang="less" scoped>
-.posts-list {
+.waterfall-container {
   height: 100vh;
   padding: 0.625rem;
   box-sizing: border-box;
   overflow: auto;
-  /* 设置滚动条的宽度和高度 */
-}
-.posts-box {
-  background: #ffffff;
-}
-::-webkit-scrollbar {
-  width: 4px;
-  height: 10px;
-}
-/* 设置滚动条轨道的背景颜色 */
-::-webkit-scrollbar-track {
-  background-color: #f1f1f1;
 }
 
-/* 设置滚动条滑块的样式 */
-::-webkit-scrollbar-thumb {
-  background-color: #888;
-  border-radius: 5px;
+.waterfall-item {
+  margin-bottom: 10px;
+  background-color: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.3s ease;
 }
-/* 设置鼠标悬停在滚动条上时的滑块样式 */
-::-webkit-scrollbar-thumb:hover {
-  background-color: #555;
+
+.waterfall-item:hover {
+  transform: translateY(-5px);
 }
-.posts-box {
-  padding: 1rem;
-  box-sizing: border-box;
-  margin-bottom: 1rem;
+
+.post-item {
+  background-color: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.post-item:hover {
+  transform: translateY(-5px);
+}
+
+.avatar-nickname {
   display: flex;
-  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.3);
-  .right {
-    margin-left: 1rem;
-  }
+  align-items: center;
+  margin-bottom: 10px;
 }
-.username {
-  text-align: center;
-  font-size: 20px;
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 10px;
 }
-.posts-title {
-  font-size: 24px;
-  font-weight: 700;
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nickname {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.post-title {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.publish-time {
+  font-size: 12px;
+  color: #888888;
 }
 </style>

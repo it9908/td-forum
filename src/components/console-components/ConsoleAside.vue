@@ -1,6 +1,6 @@
 <template>
   <el-menu
-    default-active="/console/users"
+    :default-active="$route.path"
     class="el-menu-vertical-demo"
     background-color="#545c64"
     text-color="#fff"
@@ -22,7 +22,10 @@
 
 <script>
 export default {
-  name: "ConsoleAside"
+  name: "ConsoleAside",
+  mounted(){
+    console.log(this.$route);
+  }
 };
 </script>
 

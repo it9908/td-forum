@@ -5,7 +5,7 @@
         <span slot="label">
           <span style="color: #ffffff">账号</span>
         </span>
-        <el-input v-model.trim="form.username"></el-input>
+        <el-input placeholder="账号" v-model.trim="form.username"></el-input>
       </el-form-item>
       <el-form-item>
         <span slot="label">
@@ -47,7 +47,7 @@ export default {
           // 将 token 存储到 Local Storage
           localStorage.setItem("token", token);
           const decodedToken = decodeToken(token);
-          console.log(decodedToken);
+
           switch (decodedToken.identity) {
             case 1:
               this.$router.replace({ name: "Forum" });

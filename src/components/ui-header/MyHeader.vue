@@ -22,7 +22,7 @@
             text-color="#ffffff"
             active-text-color="#ffffff"
           >
-            <el-menu-item index="/home">Home</el-menu-item>
+            <el-menu-item index="/home/homes">Home</el-menu-item>
             <el-menu-item index="/forum">forum</el-menu-item>
             <el-menu-item index="/home/login">Login</el-menu-item>
             <el-menu-item index="/home/logon">Logon</el-menu-item>

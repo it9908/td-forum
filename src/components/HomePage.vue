@@ -7,6 +7,7 @@
       <video
         id="video"
         autoplay
+        muted
         loop
       >
       <source :src="require('@/assets/video/pexels-pressmaster-3129671-3840x2160-30fps.mp4')" type="video/mp4"></video>
@@ -31,6 +32,9 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.container{
+  min-width: 100%;
+}
 .header {
   z-index: 3000;
   width: 100%;

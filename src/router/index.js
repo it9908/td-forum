@@ -12,8 +12,15 @@ const router = new Router({
         {
             path: '/home',
             name: "Home",
+            redirect: '/home/homes',
             component: () => import('@/components/HomePage.vue'),
             children: [
+
+                {
+                    path: 'homes',
+                    name: "Home",
+                    component: () => import('@/components/HomesPage.vue')
+                },
                 {
                     path: 'login',
                     name: "Login",
@@ -30,7 +37,7 @@ const router = new Router({
             path: '/forum',
             name: "Forum",
             component: () => import('@/components/MyForum.vue'),
-            redirect:'/forum/postslist',
+            redirect: '/forum/postslist',
             children: [
                 {
                     path: 'postslist',
@@ -43,9 +50,9 @@ const router = new Router({
                     component: () => import('@/components/MyPosts.vue')
                 },
                 {
-                    path: 'mycomment',
-                    name: "MyComment",
-                    component: () => import('@/components/MyComment.vue')
+                    path: 'postdetail',
+                    name: "PostDetail",
+                    component: () => import('@/components/PostDetail.vue')
                 },
             ]
         },
@@ -57,16 +64,16 @@ const router = new Router({
             meta: {
                 requiresAuth: true
             },
-            children:[
+            children: [
                 {
                     path: 'users',
                     name: 'AdUsers',
-                    component: ()=> import('@/components/console-components/AdUsers.vue')
+                    component: () => import('@/components/console-components/AdUsers.vue')
                 },
                 {
                     path: 'posts',
                     name: 'AdPosts',
-                    component: ()=> import('@/components/console-components/AdPosts.vue')
+                    component: () => import('@/components/console-components/AdPosts.vue')
                 }
             ]
         }

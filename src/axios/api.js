@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 创建一个 Axios 实例
 const api = axios.create({
-//   baseURL: 'http://localhost:5000',
+  //   baseURL: 'http://localhost:5000',
   timeout: 5000,
 });
 
@@ -33,4 +33,14 @@ api.interceptors.response.use(
 
 // 封装具体的请求方法
 export const get = url => api.get(url);
-export const post = (url, data) => api.post(url, data);
+export const post = (url, data, token = null) => {
+  const config = {};
+
+  if (token) {
+    config.headers = {
+      Authorization: token
+    };
+  }
+
+  return axios.post(url, data, config);
+};

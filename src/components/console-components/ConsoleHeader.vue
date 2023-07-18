@@ -15,21 +15,12 @@
         <el-popover placement="top-start" width="150" trigger="hover">
           <el-divider></el-divider>
           <div class="popover-list">
-            <span @click.stop="dialogTableVisible = true">
-              <i class="el-icon-picture-outline-round"></i>修改头像
-            </span>
-          </div>
-
-          <el-divider></el-divider>
-          <div class="popover-list">
-            <span>
-              <i class="el-icon-picture-outline-round"></i>修改密码
+            <span @click.stop="dialogTableVisible = true">修改头像
             </span>
           </div>
           <el-divider></el-divider>
           <div class="popover-list">
-            <span @click="isLogout">
-              <i class="el-icon-picture-outline-round"></i>退出登录
+            <span @click="isLogout">退出登录
             </span>
           </div>
           <el-divider></el-divider>

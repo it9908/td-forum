@@ -1,46 +1,30 @@
 <template>
   <div>
-    <el-row>
-      <el-col :span="8">
-        <el-row type="flex" class="row-bg" justify="space-around">
-          <el-col :span="8">
-            <el-input placeholder="请输入id" v-model="user_id" @keyup.enter.native="getUserInfoById">
-              <i slot="prefix" class="el-input__icon el-icon-search"></i>
-            </el-input>
-          </el-col>
-          <el-col :span="14">
-            <el-container>
-              <el-button type="primary" size="mini" @click="getUserInfoById">查找</el-button>
-            </el-container>
-          </el-col>
-        </el-row>
+    <el-row type="flex" :gutter="10">
+      <el-col>
+        <el-input placeholder="请输入id" v-model="user_id" @keyup.enter.native="getUserInfoById">
+          <i slot="prefix" class="el-input__icon el-icon-search"></i>
+        </el-input>
+        <el-button type="primary" size="mini" @click="getUserInfoById">查找</el-button>
       </el-col>
-      <el-col :span="8">
-        <el-row type="flex" class="row-bg" justify="space-around">
-          <el-col :span="8">
-            <el-input
-              placeholder="请输入昵称"
-              v-model="keywords"
-              @keyup.enter.native="getUserInfoByName"
-            >
-              <i slot="prefix" class="el-input__icon el-icon-search"></i>
-            </el-input>
-          </el-col>
-          <el-col :span="14">
-            <el-container>
-              <el-button type="primary" size="mini" @click="getUserInfoById">查找</el-button>
-            </el-container>
-          </el-col>
-        </el-row>
+      <el-col>
+        <el-input placeholder="请输入关键字" v-model="keywords" @keyup.enter.native="getUserInfoByName">
+          <i slot="prefix" class="el-input__icon el-icon-search"></i>
+        </el-input>
+        <el-button type="primary" size="mini" @click="getUserInfoById">查找</el-button>
       </el-col>
-      <el-col :span="8"></el-col>
     </el-row>
+    <el-row>
+      <el-button type="primary" @click.stop="delBatch">批量删除</el-button>
+    </el-row>
+
     <el-table
       v-loading="loading"
       ref="multipleTable"
       tooltip-effect="dark"
       :data="listUsers"
       border
+      @selection-change="handleSelectionChange"
       :default-sort="{prop: 'id', order: 'descending'}"
     >
       <el-table-column type="selection" width="55"></el-table-column>
@@ -140,6 +124,26 @@
   </div>
 </template>
 
+<style style lang="less" scoped>
+.pad {
+  padding: 0px 6px 0px 20px;
+}
+.el-row {
+  margin-bottom: 20px;
+}
+.el-col {
+  display: flex;
+}
+.el-col-14 {
+  display: flex;
+  // justify-content: center;
+  align-items: center;
+}
+.grid-content {
+  display: flex;
+}
+</style>
+
 <script>
 import { get, post } from "@/axios/api";
 export default {
@@ -168,7 +172,9 @@ export default {
         pageSize: 5
       },
       // 当前用户信息
-      currentUserInfo: []
+      currentUserInfo: [],
+      // 存放需要被删除用户id
+      multipleSelection: []
     };
   },
   created() {
@@ -305,24 +311,39 @@ export default {
             message: "已取消删除"
           });
         });
+    },
+    // 批量删除用户
+    delBatch() {
+      // console.log(this.multipleSelection);
+      this.$confirm("此操作将永久删除用户, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          post("/api/admin/delusers", this.multipleSelection).then(res => {
+            console.log(res);
+            if (res.data.code === 200) {
+              this.$message({
+                message: "删除成功",
+                type: "success"
+              });
+              this.initTable();
+            }
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
+    },
+    handleSelectionChange(val) {
+      // 获取需要被删除用户的id
+      this.multipleSelection = val.map(obj => obj.id);
+      // console.log(this.multipleSelection);
     }
   }
 };
 </script>
-
-<style style lang="less" scoped>
-.pad {
-  padding: 0px 6px 0px 20px;
-}
-.el-row {
-  margin-bottom: 20px;
-}
-.el-col-14 {
-  display: flex;
-  // justify-content: center;
-  align-items: center;
-}
-.grid-content {
-  display: flex;
-}
-</style>
