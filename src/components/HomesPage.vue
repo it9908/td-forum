@@ -2,19 +2,21 @@
   <div class="container-box">
     <el-row :gutter="20">
       <el-col :span="6" v-for="item in lists" :key="item.id">
-        <div class="grid-content bg-purple">
-          <div class="posts-title">{{ item.title }}</div>
-          <el-image class="img" style="width: 100%;" :src="item.image_url" :fit="'cover'">
-            <div slot="placeholder" class="image-slot">
-              加载中
-              <span class="dot">...</span>
-            </div>
-            <div slot="error" class="image-slot">
-              <i class="el-icon-picture-outline"></i>
-            </div>
-          </el-image>
-          <el-link target="_blank">了解一下</el-link>
-        </div>
+        <transition name="fade-up" :duration="{ enter: 500, leave: 0 }">
+          <div class="grid-content bg-purple">
+            <div class="posts-title">{{ item.title }}</div>
+            <el-image class="img" style="width: 100%;" :src="item.image_url" :fit="'cover'">
+              <div slot="placeholder" class="image-slot">
+                加载中
+                <span class="dot">...</span>
+              </div>
+              <div slot="error" class="image-slot">
+                <i class="el-icon-picture-outline"></i>
+              </div>
+            </el-image>
+            <el-link target="_blank">了解一下</el-link>
+          </div>
+        </transition>
       </el-col>
     </el-row>
   </div>
@@ -32,6 +34,7 @@ export default {
     this.postsList();
   },
   methods: {
+    
     postsList() {
       axios.get("/api/admin/getPostList").then(res => {
         const arr = res.data.data;

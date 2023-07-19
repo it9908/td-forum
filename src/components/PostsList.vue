@@ -10,7 +10,7 @@
             <div class="nickname">{{ getUser(p.user_id).username }}</div>
           </div>
           <div class="post-title">{{ p.title }}</div>
-          <div class="publish-time">{{ p.publish_time }}</div>
+          <div class="publish-time"><i class="el-icon-date"></i>{{ p.publish_time }}</div>
         </div>
       </el-col>
     </el-row>
@@ -73,12 +73,33 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.el-icon-date{
+  margin-right: 2px;
+}
 .waterfall-container {
   height: 100vh;
   padding: 0.625rem;
   box-sizing: border-box;
   overflow: auto;
 }
+/* Webkit 内核浏览器（Chrome、Safari） */
+::-webkit-scrollbar {
+  width: 4px; /* 滚动条宽度 */
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1; /* 滚动条背景色 */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888; /* 滚动条滑块颜色 */
+  border-radius: 4px; /* 滚动条滑块圆角 */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #555; /* 鼠标悬停时滚动条滑块颜色 */
+}
+
 
 .waterfall-item {
   margin-bottom: 10px;

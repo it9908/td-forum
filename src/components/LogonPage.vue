@@ -54,33 +54,82 @@ export default {
       }
     };
   },
+  computed: {
+    // 验证密码重复
+    repeatPwd() {
+      const { password, password2 } = { ...this.form };
+      return password2 === password;
+    }
+  },
   methods: {
+    // 验证用户名、密码格式
+    processingFormat() {
+      const { username, password } = { ...this.form };
+      if (
+        username.length < 5 ||
+        username.length > 12 ||
+        password.length < 6 ||
+        password.length > 12
+      ) {
+        return false;
+      }
+      // 验证用户名格式
+      const regexName = /^[a-zA-Z0-9]{5,11}$/;
+      // 验证密码格式
+      const regexPwd = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,12}$/;
+      const isName = regexName.test(username);
+      const isValid = regexPwd.test(password);
+      if (isName && isValid) {
+        return true;
+      } else {
+        return false;
+      }
+    },
     //注册
     logon() {
-      axios
-        .post("/api/logon", this.form)
-        .then(res => {
-          console.log(res);
-          if (res.data.code === 200) {
+      if (!this.processingFormat()) {
+        this.$message({
+          message: "用户名或密码格式错误~~",
+          type: "warning",
+          offset: 100
+        });
+        return;
+      }
+
+      if (!this.repeatPwd) {
+        this.$message({
+          message: "重复密码错误，请仔细检查~~~",
+          type: "warning",
+          offset: 100
+        });
+        return;
+      }
+      if (this.processingFormat() && this.repeatPwd) {
+        axios
+          .post("/api/logon", this.form)
+          .then(res => {
+            console.log(res);
+            if (res.data.code === 200) {
+              this.$message({
+                message: res.data.message,
+                type: "success",
+                offset: 100
+              });
+              setTimeout(() => {
+                this.$router.replace({ name: "Login" });
+              }, 2000);
+              return;
+            }
             this.$message({
               message: res.data.message,
-              type: "success",
+              type: "warning",
               offset: 100
             });
-            setTimeout(() => {
-              this.$router.replace({ name: "Login" });
-            }, 2000);
-            return;
-          }
-          this.$message({
-            message: res.data.message,
-            type: "warning",
-            offset: 100
+          })
+          .catch(err => {
+            console.log(err);
           });
-        })
-        .catch(err => {
-          console.log(err);
-        });
+      }
     }
   }
 };

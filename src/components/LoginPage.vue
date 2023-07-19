@@ -3,15 +3,15 @@
     <el-form ref="form" :model="form" label-width="80px">
       <el-form-item>
         <span slot="label">
-          <span style="color: #ffffff">账号</span>
+          <span style="color: #ffffff">用户名</span>
         </span>
-        <el-input placeholder="账号" v-model.trim="form.username"></el-input>
+        <el-input v-model.trim="form.username"></el-input>
       </el-form-item>
       <el-form-item>
         <span slot="label">
           <span style="color: #ffffff">密码</span>
         </span>
-        <el-input placeholder="请输入密码" v-model="form.password" show-password></el-input>
+        <el-input placeholder="请输入密码" v-model.trim="form.password" show-password></el-input>
       </el-form-item>
       <el-form-item>
         <el-button class="btn" size="small" @click="login">登录</el-button>
@@ -39,6 +39,14 @@ export default {
   methods: {
     //登录
     login() {
+      if (this.form.username === "" || this.form.password === "") {
+        this.$message({
+          message: '您还未输入账号或密码',
+          type: 'warning',
+          offset: 100
+        });
+        return;
+      }
       axios
         .post("/api/login", this.form)
         .then(response => {

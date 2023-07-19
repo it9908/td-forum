@@ -5,9 +5,8 @@
         <el-col :md="4" :lg="4" :xl="3">
           <div class="grid-content bg-purple-light">
             <el-page-header @back="goBack" title="首页" content="论坛中心"></el-page-header>
-            <el-menu
-              router
-            >
+            <el-divider></el-divider>
+            <el-menu router :default-active="$route.path">
               <el-menu-item index="/forum">
                 <i class="el-icon-setting"></i>
                 <span slot="title">全部帖子</span>
@@ -26,7 +25,7 @@
             <span>{{ userInfo.username }}</span>
             <el-row class="s-box" :gutter="10">
               <el-col :span="24">
-                <div class="grid-content-s">
+                <div>
                   <i class="el-icon-chat-line-square"></i>
                   <el-link type="info" @click="goMyPosts">我的帖子</el-link>
                 </div>
@@ -36,7 +35,7 @@
               <el-menu-item>
                 <template slot="title">
                   <i class="el-icon-edit"></i>
-                  <span @click.stop="drawer = true">发布帖子</span>
+                  <span @click.stop="isDrawer">发布帖子</span>
                 </template>
               </el-menu-item>
               <el-menu-item>
@@ -112,6 +111,18 @@ export default {
   },
   computed: {},
   methods: {
+    isDrawer() {
+      const token = localStorage.getItem("token");
+      if (token === null || token === undefined || token === "") {
+        this.$message({
+          message: "您还未登录",
+          type: "warning",
+          offset: 100
+        });
+        return;
+      }
+      this.drawer = true;
+    },
     handleRemove(file, fileList) {
       console.log(file, fileList);
     },
@@ -199,7 +210,7 @@ export default {
     // 返回首页
     goBack() {
       console.log("go back");
-      this.$router.push({name:"Home"})
+      this.$router.push({ name: "Home" });
     },
     // 获取用户信息
     getCurrUserInfo() {
@@ -230,22 +241,16 @@ export default {
 <style lang="less" scoped>
 .bg-purple-light {
   background: #ffffff;
+  box-shadow: 0px 12px 18px rgba(0, 0, 0, 0.5);
   height: 100vh;
 }
 .grid-content-center {
-  background: rgba(255, 255, 255, 0.5);
-}
-.grid-content-s {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: #ffffff;
+  background: rgba(0, 0, 0, 0.5);
 }
 .container {
   padding: 0.625rem;
   box-sizing: border-box;
-
+  background: url("../assets/bg-2.jpg");
   background-size: cover;
 }
 .grid-content-right {

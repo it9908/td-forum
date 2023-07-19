@@ -13,8 +13,9 @@
       </div>
     </div>
     <div class="post-content">{{ post.content }}</div>
+    <el-divider></el-divider>
+    <h3 class="comment-title">评论列表</h3>
     <div class="post-comments">
-      <h3 class="comment-title">评论列表</h3>
       <ul class="comment-list">
         <li v-for="c in comments" :key="c.id" class="comment-item">
           <div class="comment-meta">
@@ -63,15 +64,23 @@ export default {
   methods: {
     // 发布评论
     submitComment() {
+      if (this.comment === "") {
+        this.$message({
+          showClose: true,
+          message: "不能发布空消息",
+          type: "warning"
+        });
+        return;
+      }
       const arr = {
         postId: this.postId,
         content: this.comment
       };
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem("token");
       post("/api/postComment", arr, token).then(res => {
         console.log(res);
-        this.comment = ''
-        this.getComment()
+        this.comment = "";
+        this.getComment();
       });
     },
     getUser(user_id) {
@@ -114,12 +123,14 @@ export default {
 </script>
 
 <style scoped>
-.post-comments{
+div{
+  color: #ffffff;
+}
+.post-comments {
   overflow: auto;
   height: 60%;
 }
 .post-detail {
-  background: #ffffff;
   margin: 0 auto;
   padding: 20px;
   height: 100vh;
@@ -173,7 +184,7 @@ export default {
 
 .post-date,
 .comment-date {
-  color: #888;
+  color: #ffffff;
   margin: 0;
 }
 
@@ -205,6 +216,26 @@ export default {
 
 .comment-content {
   margin-left: 50px;
+}
+.comment-box{
+  display: flex;
+}
+/* Webkit 内核浏览器（Chrome、Safari） */
+::-webkit-scrollbar {
+  width: 2px; /* 滚动条宽度 */
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1; /* 滚动条背景色 */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888; /* 滚动条滑块颜色 */
+  border-radius: 4px; /* 滚动条滑块圆角 */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #555; /* 鼠标悬停时滚动条滑块颜色 */
 }
 
 </style>
