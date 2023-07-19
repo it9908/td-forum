@@ -1,55 +1,52 @@
 <template>
   <div class="container">
     <el-row>
-      <el-row :gutter="10">
-        <el-col :md="4" :lg="4" :xl="3">
-          <div class="grid-content bg-purple-light">
-            <el-page-header @back="goBack" title="首页" content="论坛中心"></el-page-header>
-            <el-divider></el-divider>
-            <el-menu router :default-active="$route.path">
-              <el-menu-item index="/forum">
-                <i class="el-icon-setting"></i>
-                <span slot="title">全部帖子</span>
-              </el-menu-item>
-            </el-menu>
-          </div>
-        </el-col>
-        <el-col :md="16" :lg="16" :xl="18">
-          <div class="grid-content-center bg-purple">
-            <router-view ref="routerView"></router-view>
-          </div>
-        </el-col>
-        <el-col :md="4" :lg="4" :xl="3">
-          <div class="grid-content grid-content-right">
-            <el-avatar :size="60" :src="userInfo.avatar"></el-avatar>
-            <span>{{ userInfo.username }}</span>
-            <el-row class="s-box" :gutter="10">
-              <el-col :span="24">
-                <div>
-                  <i class="el-icon-chat-line-square"></i>
-                  <el-link type="info" @click="goMyPosts">我的帖子</el-link>
-                </div>
-              </el-col>
-            </el-row>
-            <el-menu class="el-menu-vertical-demo" active-text-color="#ffd04b">
-              <el-menu-item>
-                <template slot="title">
-                  <i class="el-icon-edit"></i>
-                  <span @click.stop="isDrawer">发布帖子</span>
-                </template>
-              </el-menu-item>
-              <el-menu-item>
-                <template slot="title">
-                  <i class="el-icon-switch-button"></i>
-                  <el-button type="text" @click="open">退出登录</el-button>
-                </template>
-              </el-menu-item>
-            </el-menu>
-          </div>
-        </el-col>
-      </el-row>
+      <el-col :md="4" :lg="4" :xl="3">
+        <div class="grid-content bg-purple-light">
+          <el-page-header @back="goBack" title="首页" content="论坛中心"></el-page-header>
+          <el-divider></el-divider>
+          <el-menu router :default-active="$route.path">
+            <el-menu-item index="/forum">
+              <i class="el-icon-setting"></i>
+              <span slot="title">全部帖子</span>
+            </el-menu-item>
+          </el-menu>
+        </div>
+      </el-col>
+      <el-col :md="16" :lg="16" :xl="18">
+        <div class="grid-content-center bg-purple">
+          <router-view ref="routerView"></router-view>
+        </div>
+      </el-col>
+      <el-col :md="4" :lg="4" :xl="3">
+        <div class="grid-content grid-content-right">
+          <el-avatar :size="60" :src="userInfo.avatar"></el-avatar>
+          <span>{{ userInfo.username }}</span>
+          <el-row class="s-box" :gutter="10">
+            <el-col :span="24">
+              <div>
+                <i class="el-icon-chat-line-square"></i>
+                <el-link type="info" @click="goMyPosts">我的帖子</el-link>
+              </div>
+            </el-col>
+          </el-row>
+          <el-menu class="el-menu-vertical-demo" active-text-color="#ffd04b">
+            <el-menu-item>
+              <template slot="title">
+                <i class="el-icon-edit"></i>
+                <span @click.stop="isDrawer">发布帖子</span>
+              </template>
+            </el-menu-item>
+            <el-menu-item>
+              <template slot="title">
+                <i class="el-icon-switch-button"></i>
+                <el-button type="text" @click="open">退出登录</el-button>
+              </template>
+            </el-menu-item>
+          </el-menu>
+        </div>
+      </el-col>
     </el-row>
-
     <el-drawer
       :size="'80%'"
       title="发布"
@@ -89,7 +86,7 @@
 </template>
 
 <script>
-import { decodeToken } from "@/utils/check";
+import { infoUser } from "@/api/user";
 import axios from "axios";
 export default {
   name: "MyForum",
@@ -106,10 +103,13 @@ export default {
       direction: "ttb"
     };
   },
-  mounted() {
-    this.getCurrUserInfo();
+  created() {},
+  async mounted() {
+    // this.getCurrUserInfo();
+    const res = await infoUser();
+    this.userInfo = res.data.data;
+    console.log(this.userInfo);
   },
-  computed: {},
   methods: {
     isDrawer() {
       const token = localStorage.getItem("token");
@@ -213,20 +213,20 @@ export default {
       this.$router.push({ name: "Home" });
     },
     // 获取用户信息
-    getCurrUserInfo() {
-      const token = localStorage.getItem("token");
-      if (token === null || token === undefined || token === "") {
-        //当未登录时
-        const unlisted = {
-          username: "未登录",
-          avatar: "http://localhost:5000/upload/avatar/3.png"
-        };
-        this.userInfo = { ...unlisted };
-        return;
-      }
-      // 登录后
-      this.userInfo = decodeToken(token);
-    },
+    // getCurrUserInfo() {
+    //   const token = localStorage.getItem("token");
+    //   if (token === null || token === undefined || token === "") {
+    //     //当未登录时
+    //     const unlisted = {
+    //       username: "未登录",
+    //       avatar: "http://localhost:5000/upload/avatar/3.png"
+    //     };
+    //     this.userInfo = { ...unlisted };
+    //     return;
+    //   }
+    //   // 登录后
+    //   // this.userInfo = decodeToken(token);
+    // },
     //
     goMyPosts() {
       this.$router.push({ name: "MyPosts" });
@@ -239,20 +239,20 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.container {
+  min-height: 100vh;
+  background: url("../assets/bg-2.jpg");
+  background-size: cover;
+}
 .bg-purple-light {
   background: #ffffff;
   box-shadow: 0px 12px 18px rgba(0, 0, 0, 0.5);
-  height: 100vh;
+  // height: 100vh;
 }
 .grid-content-center {
   background: rgba(0, 0, 0, 0.5);
 }
-.container {
-  padding: 0.625rem;
-  box-sizing: border-box;
-  background: url("../assets/bg-2.jpg");
-  background-size: cover;
-}
+
 .grid-content-right {
   padding: 0.625rem;
   box-sizing: border-box;

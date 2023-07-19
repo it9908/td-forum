@@ -14,15 +14,17 @@
         <el-input placeholder="请输入密码" v-model.trim="form.password" show-password></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button class="btn" size="small" @click="login">登录</el-button>
+        <el-button type="success" size="small" @click="userLogin">登录</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script>
-import { decodeToken } from "../utils/check";
-import axios from "axios";
+// import { decodeToken } from "../utils/check";
+// import axios from "axios";
+import { login } from "@/api/user";
+import { parseToken } from "@/utils/authUtils";
 export default {
   name: "LoginPage",
   data() {
@@ -38,25 +40,30 @@ export default {
   },
   methods: {
     //登录
-    login() {
+    async userLogin() {
       if (this.form.username === "" || this.form.password === "") {
         this.$message({
-          message: '您还未输入账号或密码',
-          type: 'warning',
+          message: "您还未输入账号或密码",
+          type: "warning",
           offset: 100
         });
         return;
       }
-      axios
-        .post("/api/login", this.form)
-        .then(response => {
-          // 登录成功，获取到 Token
-          const token = response.data.token;
-          // 将 token 存储到 Local Storage
-          localStorage.setItem("token", token);
-          const decodedToken = decodeToken(token);
-
-          switch (decodedToken.identity) {
+      const res = await login(this.form);
+      if (res.data.code === 200) {
+        // 登录成功，获取到 Token
+        const token = res.data.token;
+        // 将 token 存储到 Local Storage
+        localStorage.setItem("token", token);
+        // 获取用户权限
+        const { identity } = parseToken(token);
+        this.$message({
+          message: "登录成功",
+          type: "success",
+          offset: 100
+        });
+        setTimeout(() => {
+          switch (identity) {
             case 1:
               this.$router.replace({ name: "Forum" });
               break;
@@ -66,31 +73,18 @@ export default {
             default:
               this.$router.replace({ name: "Forum" });
           }
-        })
-        .catch(error => {
-          // 处理登录失败的情况
-          console.log(error);
-        });
+        }, 2200);
+      }
     }
   }
 };
 </script>
 
 <style lang="less" scoped>
-.el-form-item:nth-of-type(3) {
+.login-box {
+  width: 100%;
   display: flex;
   justify-content: center;
-  .btn {
-    width: 100%;
-  }
-}
-.login-box {
-  width: 340px;
-  padding-top: 1.25rem;
-  box-sizing: border-box;
-  margin: 0 auto;
-  display: flex;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.5);
 }
 </style>

@@ -8,7 +8,8 @@ userRouter.use(bodyParser.json())
 
 // 用户注册
 userRouter.post('/logon', (req, res) => {
-    //接收账号、密码
+
+    // 接收账号、密码
     const {username, password} = req.body;
 
     console.log(username, password)
@@ -28,14 +29,14 @@ userRouter.post('/logon', (req, res) => {
         connection.query(sql1, [username], (error, results) => {
             if (error) {
                 console.error("执行查询时发生错误:", error);
-                res.send({ message: "查询错误" });
+                res.send({message: "查询错误"});
                 return;
             }
 
             if (results.length > 0) {
                 // 用户名已存在
                 console.log("用户名已存在");
-                res.send({ message: "用户名已存在" });
+                res.send({message: "用户名已存在"});
             } else {
                 let img = [
                     "http://localhost:5000/upload/avatar/1.png",
@@ -51,10 +52,10 @@ userRouter.post('/logon', (req, res) => {
                 connection.query(sqlInsert, [...params], (error, results) => {
                     if (error) {
                         console.error("插入用户信息时发生错误:", error);
-                        res.send({ message: "注册失败" });
+                        res.send({message: "注册失败"});
                     } else {
                         console.log("注册成功");
-                        res.send({ code:200, message: "注册成功" });
+                        res.send({code: 200, message: "注册成功"});
                     }
                 });
             }
@@ -67,6 +68,7 @@ userRouter.post('/logon', (req, res) => {
 
 // 用户登录
 userRouter.post('/login', (req, res) => {
+
     const {username, password} = req.body;
     // 执行查询语句，查找匹配的用户
     connection.query(
@@ -86,7 +88,7 @@ userRouter.post('/login', (req, res) => {
                         username: user.username,
                         avatar: user.avatar_url,
                         identity: user.identity
-                    }, 'my_key',{ expiresIn: '1h' });
+                    }, 'my_key', {expiresIn: '1h'});
                     // 将 token 发送给客户端
                     res.json({code: 200, token: token});
                 } else {
@@ -100,7 +102,9 @@ userRouter.post('/login', (req, res) => {
 
 // 获取当前用户信息
 userRouter.get('/current/userinfo', (req, res) => {
-    const token = req.headers.authorization;
+
+    // const token = req.headers.authorization;
+    const token = req.headers.authorization.split(' ')[1];
     if (!token) {
         return res.status(401).json({error: '未提供访问凭证'});
     }
@@ -122,10 +126,11 @@ userRouter.get('/current/userinfo', (req, res) => {
                         const user = results[0];
                         // 返回用户信息
                         res.json({
-                            id: user.id,
-                            username: user.username,
-                            avatar: user.avatar_url,
-                            identity: user.identity
+                            data: {
+                                id: user.id,
+                                username: user.username,
+                                avatar: user.avatar_url
+                            }
                         });
                     } else {
                         res.status(404).json({error: '用户不存在'});
@@ -138,6 +143,31 @@ userRouter.get('/current/userinfo', (req, res) => {
         res.status(401).json({error: '无效的访问凭证'});
     }
 });
+
+// 获取帖子列表
+userRouter.get('/getPostList', (req, res) => {
+    // 执行查询
+    connection.query('SELECT COUNT(*) AS total_count FROM posts', (error, results) => {
+        if (error) {
+            console.error('Failed to execute query:', error);
+            return;
+        }
+        // 获取总条数
+        const totalCount = results[0].total_count;
+        // 执行查询
+        const sql2 = "SELECT posts.id, posts.title, " +
+            "posts.content, posts.image_url, DATE_FORMAT(posts.publish_time, '%Y-%m-%d %H:%i:%s') AS publish_time, " +
+            "users.username AS author_nickname, avatar_url FROM posts JOIN users ON posts.user_id = users.id"
+        connection.query(sql2, (error, results) => {
+            if (error) {
+                console.error('Failed to execute query:', error);
+                return;
+            }
+            res.status(200).send({total:totalCount, data:results})
+        });
+    });
+
+})
 
 // 用户获取自已发布的帖子
 userRouter.get('/myposts', (req, res) => {

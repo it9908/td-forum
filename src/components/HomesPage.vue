@@ -23,24 +23,17 @@
 </template>
 
 <script>
-import axios from "axios";
+import { getPosts } from "@/api/forum";
 export default {
   data() {
     return {
       lists: []
     };
   },
-  mounted() {
-    this.postsList();
-  },
-  methods: {
-    
-    postsList() {
-      axios.get("/api/admin/getPostList").then(res => {
-        const arr = res.data.data;
-        arr.splice(4);
-        this.lists = arr;
-      });
+  async created() {
+    const res = await getPosts();
+    if (res.data.code === 200) {
+      this.lists = res.data.data;
     }
   }
 };
@@ -80,7 +73,7 @@ div {
   background: rgba(0, 0, 0, 0.5);
   padding: 1rem;
   .posts-title {
-    font-size: 1.625rem;
+    font-size: 1.25rem;
     font-weight: 400;
   }
   .img {

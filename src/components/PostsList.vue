@@ -1,13 +1,13 @@
 <template>
   <div class="waterfall-container">
     <el-row :gutter="10">
-      <el-col v-for="(p, index) in listPosts" :key="index" :span="6">
+      <el-col v-for="p in listPosts" :key="p.id" :span="6">
         <div class="post-item" @click="goToPostDetail(p.id)">
           <div class="avatar-nickname">
             <div class="avatar">
-              <img :src="getUser(p.user_id).avatar_url" alt="User Avatar" />
+              <img :src="p.avatar_url" alt="User Avatar" />
             </div>
-            <div class="nickname">{{ getUser(p.user_id).username }}</div>
+            <div class="nickname">{{ p.author_nickname }}</div>
           </div>
           <div class="post-title">{{ p.title }}</div>
           <div class="publish-time"><i class="el-icon-date"></i>{{ p.publish_time }}</div>
@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { get } from "@/axios/api";
+import { getPostsList } from "@/api/forum";
 
 export default {
   name: "PostsList",
@@ -32,10 +32,14 @@ export default {
       count: 0
     };
   },
-
+async created(){
+  const res = await getPostsList()
+  this.listPosts = res.data.data
+  console.log(this.listPosts);
+},
   mounted() {
-    this.getListPosts();
-    this.getListuserInfo();
+    // this.getListPosts();
+    // this.getListuserInfo();
   },
   methods: {
     goToPostDetail(postId) {
@@ -55,19 +59,19 @@ export default {
       );
     },
     //获取全部帖子
-    getListPosts() {
-      get("/api/admin/getPostList").then(res => {
-        console.log(res);
-        this.listPosts = res.data;
-      });
-    },
+    // getListPosts() {
+    //   get("/api/admin/getPostList").then(res => {
+    //     console.log(res);
+    //     this.listPosts = res.data;
+    //   });
+    // },
     //获取发布人信息
-    getListuserInfo() {
-      get("/api/admin/getUserList").then(res => {
-        console.log(res);
-        this.publisher = res;
-      });
-    }
+    // getListuserInfo() {
+    //   get("/api/admin/getUserList").then(res => {
+    //     console.log(res);
+    //     this.publisher = res;
+    //   });
+    // }
   }
 };
 </script>

@@ -155,19 +155,6 @@ adminRouter.post('/updateUserInfo/:id', (req, res) => {
     }
 })
 
-// 获取帖子列表
-adminRouter.get('/getPostList', (req, res) => {
-    const sql = "SELECT id, title, content, image_url, DATE_FORMAT(publish_time, '%Y-%m-%d %H:%i:%s') AS publish_time, user_id FROM posts"
-    connection.query(sql, (error, results) => {
-        if (error) {
-            // 如果查询出错，返回错误信息
-            res.status(500).json({ error: 'Database query error' });
-            return;
-        }
-        // 返回查询结果
-        res.json({ total: results.length, data: results });
-    });
-})
 
 // 根据新闻id查找
 adminRouter.get('/getPostsById/:id', (req, res) => {

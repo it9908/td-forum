@@ -39,7 +39,8 @@
 </style>
 
 <script>
-import axios from "axios";
+// import axios from "axios";
+import { register } from "@/api/user";
 export default {
   name: "LogonPage",
   data() {
@@ -86,7 +87,7 @@ export default {
       }
     },
     //注册
-    logon() {
+    async logon() {
       if (!this.processingFormat()) {
         this.$message({
           message: "用户名或密码格式错误~~",
@@ -95,7 +96,6 @@ export default {
         });
         return;
       }
-
       if (!this.repeatPwd) {
         this.$message({
           message: "重复密码错误，请仔细检查~~~",
@@ -105,30 +105,30 @@ export default {
         return;
       }
       if (this.processingFormat() && this.repeatPwd) {
-        axios
-          .post("/api/logon", this.form)
-          .then(res => {
-            console.log(res);
-            if (res.data.code === 200) {
-              this.$message({
-                message: res.data.message,
-                type: "success",
-                offset: 100
-              });
-              setTimeout(() => {
-                this.$router.replace({ name: "Login" });
-              }, 2000);
-              return;
-            }
+        try {
+          const { username, password } = this.form;
+          const formData = { username, password };
+          const res = await register(formData);
+          console.log(res.data);
+          if (res.data.code === 200) {
             this.$message({
               message: res.data.message,
-              type: "warning",
+              type: "success",
               offset: 100
             });
-          })
-          .catch(err => {
-            console.log(err);
+            setTimeout(() => {
+              this.$router.replace({ name: "Login" });
+            }, 2000);
+            return;
+          }
+          this.$message({
+            message: res.data.message,
+            type: "warning",
+            offset: 100
           });
+        } catch (error) {
+          this.$message.error("服务器错误~~");
+        }
       }
     }
   }
