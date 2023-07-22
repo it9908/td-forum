@@ -7,6 +7,14 @@
       <el-aside width="180px">
         <ConsoleAside></ConsoleAside>
       </el-aside>
+      <el-breadcrumb separator="/">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>
+          <a href="/">活动管理</a>
+        </el-breadcrumb-item>
+        <el-breadcrumb-item>活动列表</el-breadcrumb-item>
+        <el-breadcrumb-item>活动详情</el-breadcrumb-item>
+      </el-breadcrumb>
       <el-main>
         <router-view></router-view>
       </el-main>
@@ -15,12 +23,12 @@
 </template>
 
 <script>
-import ConsoleHeader from "@/components/console-components/ConsoleHeader.vue";
-import ConsoleAside from "@/components/console-components/ConsoleAside.vue";
+// import ConsoleHeader from "@/components/console-components/ConsoleHeader.vue";
+// import ConsoleAside from "@/components/console-components/ConsoleAside.vue";
 export default {
   components: {
-    ConsoleHeader,
-    ConsoleAside
+    // ConsoleHeader,
+    // ConsoleAside
   },
   name: "AdminConsole"
 };

@@ -117,7 +117,7 @@
 
 <script>
 import axios from "axios";
-import { get, post } from "../../axios/api";
+// import { get, post } from "../../axios/api";
 export default {
   name: "AdPosts",
   data() {
@@ -150,42 +150,42 @@ export default {
   methods: {
     // 通过id查找
     getPostsById(){
-      if(this.postId === '' || this.postId === undefined || this.postId === null){
-        this.initTable()
-        return
-      }
-      get(`/api/admin/getPostsById/${this.postId}`)
-      .then(res=>{
-          console.log(res);
-          this.listPosts = res.data
-      })
+      // if(this.postId === '' || this.postId === undefined || this.postId === null){
+      //   this.initTable()
+      //   return
+      // }
+      // get(`/api/admin/getPostsById/${this.postId}`)
+      // .then(res=>{
+      //     console.log(res);
+      //     this.listPosts = res.data
+      // })
     },
     // 批量删除帖子
     delBatch() {
       // console.log(this.multipleSelection);
-      this.$confirm("此操作将永久删除帖子, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(() => {
-          post("/api/admin/delSelectPost", this.multipleSelection).then(res => {
-            console.log(res);
-            if (res.data.code === 200) {
-              this.$message({
-                message: "删除成功",
-                type: "success"
-              });
-              this.initTable();
-            }
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除"
-          });
-        });
+      // this.$confirm("此操作将永久删除帖子, 是否继续?", "提示", {
+      //   confirmButtonText: "确定",
+      //   cancelButtonText: "取消",
+      //   type: "warning"
+      // })
+      //   .then(() => {
+      //     post("/api/admin/delSelectPost", this.multipleSelection).then(res => {
+      //       console.log(res);
+      //       if (res.data.code === 200) {
+      //         this.$message({
+      //           message: "删除成功",
+      //           type: "success"
+      //         });
+      //         this.initTable();
+      //       }
+      //     });
+      //   })
+      //   .catch(() => {
+      //     this.$message({
+      //       type: "info",
+      //       message: "已取消删除"
+      //     });
+      //   });
     },
     handleSelectionChange(val) {
       // 获取需要被删除用户的id
@@ -269,17 +269,17 @@ export default {
       console.log(`当前页: ${val}`);
     },
     // 分页查询
-    initTable() {
-      axios
-        .get(
-          `/api/admin/items/${this.params.currentPage}/${this.params.pageSize}`
-        )
-        .then(res => {
-          console.log(res.data);
-          this.listPosts = res.data.items;
-          this.count = res.data.totalItems;
-        });
-    }
+    // initTable() {
+    //   axios
+    //     .get(
+    //       `/api/admin/items/${this.params.currentPage}/${this.params.pageSize}`
+    //     )
+    //     .then(res => {
+    //       console.log(res.data);
+    //       this.listPosts = res.data.items;
+    //       this.count = res.data.totalItems;
+    //     });
+    // }
   }
 };
 </script>

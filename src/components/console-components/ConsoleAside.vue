@@ -15,6 +15,7 @@
       <el-menu-item-group>
         <el-menu-item index="/console/users">用户管理</el-menu-item>
         <el-menu-item index="/console/posts">帖子管理</el-menu-item>
+        <el-menu-item index="/console/testposts">测试帖子管理</el-menu-item>
       </el-menu-item-group>
     </el-submenu>
   </el-menu>

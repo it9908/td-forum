@@ -25,3 +25,23 @@ export function infoUser() {
         method: 'GET',
     })
 }
+
+// 发布
+export function release(data) {
+    return api({
+        url: "/releasePosts",
+        method: "POST",
+        data,
+        headers: {
+            // "Content-Type": "multipart/form-data", // 覆盖拦截器中的Content-Type设置
+        }
+    })
+}
+
+// 获取自己的帖子
+export function ownPosts() {
+    return api({
+        url: "/v1/myposts",
+
+    })
+}

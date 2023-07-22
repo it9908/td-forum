@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { get, post } from "@/axios/api";
+// import { get, post } from "@/axios/api";
 export default {
   name: "PostDetail",
   data() {
@@ -64,60 +64,60 @@ export default {
   methods: {
     // 发布评论
     submitComment() {
-      if (this.comment === "") {
-        this.$message({
-          showClose: true,
-          message: "不能发布空消息",
-          type: "warning"
-        });
-        return;
-      }
-      const arr = {
-        postId: this.postId,
-        content: this.comment
-      };
-      const token = localStorage.getItem("token");
-      post("/api/postComment", arr, token).then(res => {
-        console.log(res);
-        this.comment = "";
-        this.getComment();
-      });
+  //     if (this.comment === "") {
+  //       this.$message({
+  //         showClose: true,
+  //         message: "不能发布空消息",
+  //         type: "warning"
+  //       });
+  //       return;
+  //     }
+  //     const arr = {
+  //       postId: this.postId,
+  //       content: this.comment
+  //     };
+  //     const token = localStorage.getItem("token");
+  //     post("/api/postComment", arr, token).then(res => {
+  //       console.log(res);
+  //       this.comment = "";
+  //       this.getComment();
+  //     });
     },
-    getUser(user_id) {
-      return (
-        this.publisher2.find(user => user.id === user_id) || {
-          avatar_url: "/api/upload/avatar/1.png"
-        }
-      );
-    },
-    //获取发布人信息
-    getListuserInfo() {
-      get("/api/admin/getUserList").then(res => {
-        console.log(res);
-        this.publisher2 = res;
-      });
-    },
-    // 获取列表
-    getPostsById() {
-      get(`/api/admin/getPostsById/${this.postId}`)
-        .then(res => {
-          this.post = res.data[0];
-          console.log(this.post);
-        })
-        .then(() => {
-          get(`/api/admin/getUserInfoById/${this.post.user_id}`).then(res => {
-            console.log(res.data);
-            this.publisher = res.data[0];
-          });
-        });
-    },
-    // 获取评论
-    getComment() {
-      get(`/api/getComment/${this.postId}`).then(res => {
-        console.log(res);
-        this.comments = res.data;
-      });
-    }
+  //   getUser(user_id) {
+  //     return (
+  //       this.publisher2.find(user => user.id === user_id) || {
+  //         avatar_url: "/api/upload/avatar/1.png"
+  //       }
+  //     );
+  //   },
+  //   //获取发布人信息
+  //   getListuserInfo() {
+  //     get("/api/admin/getUserList").then(res => {
+  //       console.log(res);
+  //       this.publisher2 = res;
+  //     });
+  //   },
+  //   // 获取列表
+  //   getPostsById() {
+  //     get(`/api/admin/getPostsById/${this.postId}`)
+  //       .then(res => {
+  //         this.post = res.data[0];
+  //         console.log(this.post);
+  //       })
+  //       .then(() => {
+  //         get(`/api/admin/getUserInfoById/${this.post.user_id}`).then(res => {
+  //           console.log(res.data);
+  //           this.publisher = res.data[0];
+  //         });
+  //       });
+  //   },
+  //   // 获取评论
+  //   getComment() {
+  //     get(`/api/getComment/${this.postId}`).then(res => {
+  //       console.log(res);
+  //       this.comments = res.data;
+  //     });
+  //   }
   }
 };
 </script>

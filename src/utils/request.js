@@ -32,6 +32,7 @@ api.interceptors.response.use(
   response => {
     // 在接收到响应后进行一些处理
     // 可以处理响应数据、错误状态码等
+    console.log(response);
     return response;
   },
   error => {

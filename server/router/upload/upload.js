@@ -13,7 +13,6 @@ routerUpload.use(bodyParser.json())
 // 设置存储引擎和上传目录
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // console.log("file.fieldname:" + file.fieldname);
     let uploadPath = '';
     if (file.fieldname === 'image') {
       uploadPath = './upload/posts'; // 图片存放目录
@@ -72,11 +71,12 @@ routerUpload.post('/replace/avatar/:fileName', (req, res) => {
     }
     res.json({ code: 200, massage: "更换成功" })
   })
-})
+});
+
 // 发布帖子
 routerUpload.post('/posts/create', upload.single('image'), (req, res) => {
   //获取token
-  const token = req.headers.authorization
+  const token = req.headers.authorization.split(' ')[1]
   if (!token) {
     // 如果请求中没有 token 参数，返回错误信息
     res.status(400).json({ error: '没有token' })
@@ -87,7 +87,7 @@ routerUpload.post('/posts/create', upload.single('image'), (req, res) => {
   console.log(req.body)
   const { title, content } = req.body;
   // 获取上传的图片信息
-  // console.log(req.file)
+  console.log(req.file)
   const image = req.file.originalname;
   const data = new Date()
   const imageUrl = `http://localhost:5000/upload/posts/image/${image}`;
@@ -99,10 +99,10 @@ routerUpload.post('/posts/create', upload.single('image'), (req, res) => {
   const sql = 'INSERT INTO posts (title, content, image_url, publish_time, user_id) VALUES (?, ?, ?, ?, ?)'
   connection.query(sql, [title, content, imageUrl, data, user_id], (error, results) => {
     if (error) {
-      res.json({ code: 201, massage: "error" })
+      res.json({ code: 201, message: "error" })
       return
     }
-    res.json({ code: 200, massage: "成功" })
+    res.json({ code: 200, message: "success" })
   })
 });
 
@@ -113,7 +113,7 @@ routerUpload.get('/posts/image/:filename', (req, res) => {
   const imagePath = path.resolve(__dirname, '../../upload/posts', filename);
   // 返回图片
   res.sendFile(imagePath);
-})
+});
 
 //访问头像
 routerUpload.get('/avatar/:filename', (req, res) => {
@@ -122,6 +122,6 @@ routerUpload.get('/avatar/:filename', (req, res) => {
   const imagePath = path.resolve(__dirname, '../../upload/avatar', filename);
   // 返回图片
   res.sendFile(imagePath);
-})
+});
 
 module.exports = routerUpload;

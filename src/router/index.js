@@ -57,7 +57,7 @@ const router = new Router({
             ]
         },
         {
-            path: '/console',
+            path: '/console1',
             name: 'Console',
             redirect: '/console/users',
             component: () => import('@/components/AdminConsole.vue'),
@@ -74,7 +74,58 @@ const router = new Router({
                     path: 'posts',
                     name: 'AdPosts',
                     component: () => import('@/components/console-components/AdPosts.vue')
+                },
+                {
+                    path: 'testposts',
+                    name: '',
+                    component: () => import('@/components/console-components/TestAdPosts.vue')
                 }
+            ]
+        },
+        {
+            path: '/console',
+            meta: {
+                title: "首页",
+            },
+            component: () => import('@/views/ConsolePage.vue'),
+            redirect: '/console/default',
+            children: [
+                {
+                    path: 'default',
+                    component: () => import('@/components/console-main/AdDefault.vue'),
+                    meta: {
+                        title: "默认",
+                    },
+                },
+                {
+                    path: 'home',
+                    component: () => import('@/components/console-main/ConsolePosts.vue'),
+                    meta: {
+                        title: "帖子管理",
+                    },
+                },
+                {
+                    path: 'user',
+                    component: () => import('@/components/console-main/ConsoleUser.vue'),
+                    meta: {
+                        title: "用户管理",
+                    },
+                },
+                {
+                    path: 'post',
+                    component: () => import('@/components/console-main/AdPost.vue'),
+                    meta: {
+                        title: "发布",
+                    },
+                },
+                {
+                    path: 'toexamine',
+                    component: () => import('@/components/console-main/ToExamine.vue'),
+                    meta: {
+                        title: "发布审核",
+                    },
+                },
+                
             ]
         }
     ]

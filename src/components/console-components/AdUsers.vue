@@ -145,7 +145,7 @@
 </style>
 
 <script>
-import { get, post } from "@/axios/api";
+// import { get, post } from "@/axios/api";
 export default {
   name: "AdUsers",
   data() {
@@ -217,127 +217,128 @@ export default {
     // 分页查询
     initTable() {
       // 使用封装的请求方法，传递动态参数
-      get(`/api/admin/users/${this.params.currentPage}/${this.params.pageSize}`)
-        .then(response => {
-          this.loading = false;
-          this.listUsers = response.items;
-          this.count = response.totalItems;
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      // get(`/api/admin/users/${this.params.currentPage}/${this.params.pageSize}`)
+      //   .then(response => {
+      //     this.loading = false;
+      //     this.listUsers = response.items;
+      //     this.count = response.totalItems;
+      //   })
+      //   .catch(error => {
+      //     console.log(error);
+      //   });
     },
     // 根据id查找
     getUserInfoById() {
-      this.loading = true;
-      get(`/api/admin/getUserInfoById/${this.user_id}`)
-        .then(res => {
-          console.log(res);
-          this.listUsers = res.data;
-          this.loading = false;
-        })
-        .catch(err => {
-          console.log(err);
-          this.initTable();
-        });
+      // this.loading = true;
+      // get(`/api/admin/getUserInfoById/${this.user_id}`)
+      //   .then(res => {
+      //     console.log(res);
+      //     this.listUsers = res.data;
+      //     this.loading = false;
+      //   })
+      //   .catch(err => {
+      //     console.log(err);
+      //     this.initTable();
+      //   });
     },
     // 根据昵称模糊查找
     getUserInfoByName() {
-      this.loading = true;
-      get(`/api/admin/getUserInfoByName/${this.keywords}`)
-        .then(res => {
-          console.log(res);
-          this.listUsers = res.data;
-          this.loading = false;
-        })
-        .catch(err => {
-          console.log(err);
-          this.initTable();
-        });
+      // this.loading = true;
+      // get(`/api/admin/getUserInfoByName/${this.keywords}`)
+      //   .then(res => {
+      //     console.log(res);
+      //     this.listUsers = res.data;
+      //     this.loading = false;
+      //   })
+      //   .catch(err => {
+      //     console.log(err);
+      //     this.initTable();
+      //   });
     },
     // 编辑页面当前用户信息
     editCurrentUserInfo() {
-      get(`/api/admin/getUserInfoById/${this.currentUserInfo.id}`).then(res => {
-        this.currentUserInfo = res.data[0];
-      });
+      // get(`/api/admin/getUserInfoById/${this.currentUserInfo.id}`).then(res => {
+      //   this.currentUserInfo = res.data[0];
+      // });
     },
     // 修改用户权限
     updateUserIdentity() {
-      const { id, identity } = { ...this.currentUserInfo };
-      post(`/api/admin/updateUserInfo/${id}`, { identity })
-        .then(response => {
-          console.log(response);
-          if (response.code === 200) {
-            this.$notify({
-              title: "成功",
-              message: "修改成功",
-              type: "success",
-              duration: 3000
-            });
-          } else if (response.code === 201) {
-            this.$notify.error({
-              title: "错误",
-              message: response.message
-            });
-          }
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      // const { id, identity } = { ...this.currentUserInfo };
+      // post(`/api/admin/updateUserInfo/${id}`, { identity })
+      //   .then(response => {
+      //     console.log(response);
+      //     if (response.code === 200) {
+      //       this.$notify({
+      //         title: "成功",
+      //         message: "修改成功",
+      //         type: "success",
+      //         duration: 3000
+      //       });
+      //     } else if (response.code === 201) {
+      //       this.$notify.error({
+      //         title: "错误",
+      //         message: response.message
+      //       });
+      //     }
+      //   })
+      //   .catch(error => {
+      //     console.log(error);
+      //   });
     },
     // 删除用户
     delUser(row) {
-      this.$confirm("确定要删除该用户吗？", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(() => {
-          const { id } = { ...row };
-          post(`/api/admin/delUser/${id}`).then(res => {
-            console.log(res);
-            if (res.code === 200) {
-              this.initTable();
-            }
-          });
-          this.$message({
-            type: "success",
-            message: "删除成功!"
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除"
-          });
-        });
+      console.log(row);
+      // this.$confirm("确定要删除该用户吗？", "提示", {
+      //   confirmButtonText: "确定",
+      //   cancelButtonText: "取消",
+      //   type: "warning"
+      // })
+      //   .then(() => {
+      //     const { id } = { ...row };
+      //     post(`/api/admin/delUser/${id}`).then(res => {
+      //       console.log(res);
+      //       if (res.code === 200) {
+      //         this.initTable();
+      //       }
+      //     });
+      //     this.$message({
+      //       type: "success",
+      //       message: "删除成功!"
+      //     });
+      //   })
+      //   .catch(() => {
+      //     this.$message({
+      //       type: "info",
+      //       message: "已取消删除"
+      //     });
+      //   });
     },
     // 批量删除用户
     delBatch() {
       // console.log(this.multipleSelection);
-      this.$confirm("此操作将永久删除用户, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(() => {
-          post("/api/admin/delusers", this.multipleSelection).then(res => {
-            console.log(res);
-            if (res.data.code === 200) {
-              this.$message({
-                message: "删除成功",
-                type: "success"
-              });
-              this.initTable();
-            }
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除"
-          });
-        });
+      // this.$confirm("此操作将永久删除用户, 是否继续?", "提示", {
+      //   confirmButtonText: "确定",
+      //   cancelButtonText: "取消",
+      //   type: "warning"
+      // })
+      //   .then(() => {
+      //     post("/api/admin/delusers", this.multipleSelection).then(res => {
+      //       console.log(res);
+      //       if (res.data.code === 200) {
+      //         this.$message({
+      //           message: "删除成功",
+      //           type: "success"
+      //         });
+      //         this.initTable();
+      //       }
+      //     });
+      //   })
+      //   .catch(() => {
+      //     this.$message({
+      //       type: "info",
+      //       message: "已取消删除"
+      //     });
+      //   });
     },
     handleSelectionChange(val) {
       // 获取需要被删除用户的id

@@ -64,7 +64,7 @@
         <el-form-item label="图片">
           <el-upload
             class="upload-demo"
-            name="image"
+            name="file"
             :limit="1"
             action="http://localhost:5000/upload/image"
             :on-preview="handlePreview"
@@ -78,7 +78,7 @@
           </el-upload>
         </el-form-item>
         <el-form-item>
-          <el-button @click="release">发布</el-button>
+          <el-button @click="releasePosts">发布</el-button>
         </el-form-item>
       </el-form>
     </el-drawer>
@@ -86,15 +86,16 @@
 </template>
 
 <script>
-import { infoUser } from "@/api/user";
-import axios from "axios";
+import { infoUser, release } from "@/api/user";
+// import axios from "axios";
 export default {
   name: "MyForum",
   data() {
     return {
       form: {
         title: "",
-        content: ""
+        content: "",
+        image:""
       },
       fileList: [],
       //当前用户信息
@@ -107,6 +108,7 @@ export default {
   async mounted() {
     // this.getCurrUserInfo();
     const res = await infoUser();
+    // 获取用户信息
     this.userInfo = res.data.data;
     console.log(this.userInfo);
   },
@@ -171,41 +173,27 @@ export default {
     // 上传成功时
     handleUploadSuccess(response, file, fileList) {
       // 处理上传成功的逻辑，例如添加文件到 fileList
-      this.fileList = fileList;
+      this.form.image = fileList[0].name;
+      console.log(fileList);
     },
     // 发布
-    release() {
-      const formData = new FormData();
-      formData.append("title", this.form.title);
-      formData.append("content", this.form.content);
-      formData.append("image", this.fileList[0].raw);
-      axios
-        .post("/api/upload/posts/create", formData, {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-            "Content-Type": "multipart/form-data"
-          }
-        })
-        .then(response => {
-          // 处理成功响应
-          console.log(response.data);
-          this.$message("发布成功");
-          this.drawer = false;
-          this.form.title = "";
-          this.form.content = "";
-          this.fileList = [];
-          const routerView = this.$refs.routerView;
-          const routerName = this.$route.name;
-          if (routerName === "MyPosts") {
-            routerView.getPostdById();
-          } else if (routerName === "PostsList") {
-            routerView.getListPosts();
-          }
-        })
-        .catch(error => {
-          // 处理错误响应
-          console.error(error);
+    async releasePosts() {
+      if (!this.form.title || !this.form.content || !this.fileList) {
+        console.log("请补充完成");       
+            } else {
+        // const formData = {
+        //   title: this.form.title,
+        //   content: this.form.content,
+        //   image: this.fileList[0].raw
+        // };
+        const res = await release(this.form);
+        this.$message({
+          message: res.data.message,
+          type: "success"
         });
+        // 关闭抽屉
+        this.drawer = false;
+      }
     },
     // 返回首页
     goBack() {

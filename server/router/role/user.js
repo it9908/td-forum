@@ -88,7 +88,7 @@ userRouter.post('/login', (req, res) => {
                         username: user.username,
                         avatar: user.avatar_url,
                         identity: user.identity
-                    }, 'my_key', {expiresIn: '1h'});
+                    }, 'my_key', {expiresIn: '24h'});
                     // 将 token 发送给客户端
                     res.json({code: 200, token: token});
                 } else {
@@ -230,20 +230,20 @@ userRouter.post('/del/myPosts', (req, res) => {
 })
 
 // 用户修改帖子
-userRouter.post('/updatePostsById/:postsId', (req, res) => {
-    const {title, content} = req.body.formData
-    const posts_id = req.params.postsId
-
-    const sql = "UPDATE posts SET title = ?, content = ? WHERE id = ?"
-
-    connection.query(sql, [title, content, posts_id], (error, results) => {
-        if (error) {
-            res.json({code: 201, massage: "数据库错误"})
-            return
-        }
-        res.json({code: 200, massage: "修改成功"})
-    })
-})
+// userRouter.post('/updatePostsById/:postsId', (req, res) => {
+//     const {title, content} = req.body.formData
+//     const posts_id = req.params.postsId
+//
+//     const sql = "UPDATE posts SET title = ?, content = ? WHERE id = ?"
+//
+//     connection.query(sql, [title, content, posts_id], (error, results) => {
+//         if (error) {
+//             res.json({code: 201, massage: "数据库错误"})
+//             return
+//         }
+//         res.json({code: 200, massage: "修改成功"})
+//     })
+// })
 
 // 获取评论
 userRouter.get('/getComment/:postsId', (req, res) => {
