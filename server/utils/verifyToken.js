@@ -10,6 +10,7 @@ function verifyToken(req, res, next) {
     try {
         const decoded = jwt.verify(token, 'my_key');
         req.userId = decoded.id; // 将解码后的token数据保存在请求对象中的 decodedToken 属性中
+        req.identity = decoded.identity
         next(); // 继续后续的请求处理
     } catch (error) {
         return res.sendStatus(401).json({ err: "token无效" });

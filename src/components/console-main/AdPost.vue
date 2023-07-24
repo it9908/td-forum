@@ -1,11 +1,17 @@
 <template>
-  <el-form ref="form" label-width="80px">
+  <el-form ref="form" :model="form" label-width="80px">
     <el-form-item label="标题">
-      <el-input></el-input>
+      <el-input v-model="form.title"></el-input>
     </el-form-item>
     <el-form-item label="封面">
       <div class="image-b" v-if="isImg">
-        <el-image style="width: 300px;" :src="fileList[0]" fit :preview-src-list="fileList"></el-image>
+        <el-image
+          style="width: 300px;"
+          :src="`http://localhost:5000/image/${form.cover}`"
+          fit
+          :preview-src-list="fileList"
+        ></el-image>
+        <!-- 移除图片提示 -->
         <el-popconfirm title="确定删除吗？" @confirm="removeCover">
           <el-button type="danger" slot="reference" size="mini" icon="el-icon-delete" circle></el-button>
         </el-popconfirm>
@@ -32,16 +38,17 @@
       <div class="tag-list">
         <el-tag
           :key="tag"
-          v-for="tag in dynamicTags"
+          v-for="tag in form.tags"
           closable
           :disable-transitions="false"
           @close="handleClose(tag)"
+          effect="dark"
         >{{tag}}</el-tag>
 
         <el-input
           class="input-new-tag"
           v-if="inputVisible"
-          v-model="inputValue"
+          v-model.trim="inputValue"
           ref="saveTagInput"
           size="small"
           @keyup.enter.native="handleInputConfirm"
@@ -51,29 +58,16 @@
       </div>
     </el-form-item>
     <el-form-item label="内容">
-      <div style="border: 1px solid #ccc;">
-        <Toolbar
-          style="border-bottom: 1px solid #ccc"
-          :editor="editor"
-          :defaultConfig="toolbarConfig"
-          :mode="mode"
-        />
-        <Editor
-          style="height: 300px; overflow-y: hidden;"
-          v-model="html"
-          :defaultConfig="editorConfig"
-          :mode="mode"
-          @onCreated="onCreated"
-        />
-      </div>
+      <mavon-editor ref="md" v-model="form.content" :ishljs="true" @imgAdd="imgAdd" />
     </el-form-item>
     <el-form-item>
-      <el-button type="success">发布</el-button>
+      <el-button type="success" @click="success">提交审核</el-button>
     </el-form-item>
   </el-form>
 </template>
 
 <style lang="less" scoped>
+
 .el-tag {
   margin: 0 2px;
 }
@@ -82,7 +76,7 @@
   background: #ffffff;
   border: 1px dashed #e15f41;
   box-sizing: border-box;
-  .input-new-tag{
+  .input-new-tag {
     width: 100px;
   }
 }
@@ -103,47 +97,52 @@
 .el-form .el-form-item /deep/.el-form-item__content {
   line-height: 0px;
 }
-
-@import "@wangeditor/editor/dist/css/style.css";
 </style>
 
 <script>
-import Vue from "vue";
-import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
-
-export default Vue.extend({
-  components: { Editor, Toolbar },
+// import {mavonEditor} from 'mavon-editor'
+import axios from "axios";
+import { release } from "@/api/user";
+export default {
   data() {
     return {
+      file: null, // 存储文件对象,
+      form: {
+        title: "",
+        cover: "",
+        tags: ["标签一", "标签二", "标签三"],
+        content: ""
+      },
       isImg: false,
       fileList: [],
-      editor: null,
-      html: "<p>hello</p>",
-      toolbarConfig: {},
-      editorConfig: { placeholder: "请输入内容..." },
-      mode: "default", // or 'simple'
-      dynamicTags: ["React", "Js", "Vue"],
+
       inputVisible: false,
       inputValue: ""
     };
   },
   mounted() {
-    // 模拟 ajax 请求，异步渲染编辑器
-    setTimeout(() => {
-      this.html = "<p>模拟 Ajax 异步设置内容 HTML</p>";
-    }, 1500);
-  },
-  beforeDestroy() {
-    const editor = this.editor;
-    if (editor == null) return;
-    editor.destroy(); // 组件销毁时，及时销毁编辑器
   },
   methods: {
-    onCreated(editor) {
-      this.editor = Object.seal(editor); // 一定要用 Object.seal() ，否则会报错
+    // 绑定@imgAdd event
+    imgAdd(pos, file) {
+      // 第一步.将图片上传到服务器.
+      var formdata = new FormData();
+      formdata.append("file", file);
+      axios({
+        url: "http://localhost:5000/v1/upload/image",
+        method: "POST",
+        data: formdata,
+        headers: { "Content-Type": "multipart/form-data" }
+      }).then(res => {
+        // 接受服务器传回重命名的图片
+        const imgname = res.data.filename
+        const url = `http://localhost:5000/image/${imgname}`
+        this.$refs['md'].$img2Url(pos, url);
+      });
     },
+
     handleClose(tag) {
-      this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
+      this.form.tags.splice(this.form.tags.indexOf(tag), 1);
     },
 
     showInput() {
@@ -155,26 +154,38 @@ export default Vue.extend({
 
     handleInputConfirm() {
       let inputValue = this.inputValue;
-      if (inputValue) {
-        this.dynamicTags.push(inputValue);
+      if (!inputValue) {
+        this.inputVisible = false;
+        return;
       }
+      if (!this.form.tags.includes(inputValue)) {
+        // 如果用户输入的标签不为空，并且当前标签列表中不存在该标签，才添加
+        this.form.tags.push(inputValue);
+        this.inputValue = "";
+        return;
+      }
+
       this.inputVisible = false;
       this.inputValue = "";
     },
-
     // 上传成功时
     handleUploadSuccess(response, file, fileList) {
-      // 处理上传成功的逻辑，例如添加文件到 fileList
-      this.fileList.push(`http://localhost:5000/image/${fileList[0].name}`);
+      // 处理上传成功的逻辑，例如添加文件到
+      const imgName = fileList[0].response.filename;
+      this.form.cover = imgName;
       this.isImg = true;
-      console.log(response, fileList, this.fileList);
     },
 
     // 移除封面
     removeCover() {
       this.fileList = [];
       this.isImg = false;
+    },
+    async success() {
+      console.log(this.form);
+      const res = await release(this.form);
+      console.log(res);
     }
   }
-});
+};
 </script>

@@ -38,40 +38,40 @@ adminRouter.get('/getUserList', (req, res) => {
 })
 
 // 分页查询
-adminRouter.get('/users/:currentPage/:pageSize', (req, res) => {
-    const currentPage = parseInt(req.params.currentPage) || 1;
-    const pageSize = parseInt(req.params.pageSize) || 10;
-    const offset = (currentPage - 1) * pageSize;
-
-    // 查询总条目数
-    const countQuery = 'SELECT COUNT(*) AS total FROM users';
-    connection.query(countQuery, (countError, countResults) => {
-        if (countError) {
-            console.error(countError);
-            res.status(500).json({ error: 'Server error' });
-        } else {
-            const totalItems = countResults[0].total;
-            // 分页查询
-            const query = "SELECT id,username,password,avatar_url,identity,DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') AS create_time,DATE_FORMAT(update_time, '%Y-%m-%d %H:%i:%s') AS update_time FROM users LIMIT ? OFFSET ? ";
-            connection.query(query, [pageSize, offset], (error, results) => {
-                if (error) {
-                    console.error(error);
-                    res.status(500).json({ error: 'Server error' });
-                } else {
-                    // 返回分页结果
-                    res.json({
-                        currentPage,
-                        pageSize,
-                        totalItems,
-                        totalPages: Math.ceil(totalItems / pageSize),
-                        items: results,
-                    });
-                    console.log(results);
-                }
-            });
-        }
-    });
-})
+// adminRouter.get('/users/:currentPage/:pageSize', (req, res) => {
+//     const currentPage = parseInt(req.params.currentPage) || 1;
+//     const pageSize = parseInt(req.params.pageSize) || 10;
+//     const offset = (currentPage - 1) * pageSize;
+//
+//     // 查询总条目数
+//     const countQuery = 'SELECT COUNT(*) AS total FROM users';
+//     connection.query(countQuery, (countError, countResults) => {
+//         if (countError) {
+//             console.error(countError);
+//             res.status(500).json({ error: 'Server error' });
+//         } else {
+//             const totalItems = countResults[0].total;
+//             // 分页查询
+//             const query = "SELECT id,username,password,avatar_url,identity,DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') AS create_time,DATE_FORMAT(update_time, '%Y-%m-%d %H:%i:%s') AS update_time FROM users LIMIT ? OFFSET ? ";
+//             connection.query(query, [pageSize, offset], (error, results) => {
+//                 if (error) {
+//                     console.error(error);
+//                     res.status(500).json({ error: 'Server error' });
+//                 } else {
+//                     // 返回分页结果
+//                     res.json({
+//                         currentPage,
+//                         pageSize,
+//                         totalItems,
+//                         totalPages: Math.ceil(totalItems / pageSize),
+//                         items: results,
+//                     });
+//                     console.log(results);
+//                 }
+//             });
+//         }
+//     });
+// })
 
 // 根据id查询用户
 adminRouter.get('/getUserInfoById/:id', (req, res) => {

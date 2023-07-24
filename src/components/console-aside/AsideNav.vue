@@ -81,7 +81,6 @@ export default {
     },
     checkScreenWidth() {
       this.isSmallScreen = window.innerWidth < 1280;
-      console.log(this.isSmallScreen);
     }
   },
   created() {

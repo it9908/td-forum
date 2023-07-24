@@ -27,10 +27,10 @@ router.post('/logon', (req, res) => {
 
             if (results.length > 0) {
                 // 用户名已存在
-                res.send({message: "用户名已存在"});
+                res.send({code:201,message: "用户名已存在"});
             } else {
                 let img = ["1.png", "2.png", "3.png"]
-                console.log(img)
+
                 // 随机分配头像
                 let randomImg = img[Math.floor(Math.random() * img.length)];
 
@@ -124,9 +124,7 @@ router.get('/getUserInfoById', verifyToken, (req, res) => {
     const userId = req.userId
     const sql = 'SELECT id, username, avatar_url, identity FROM users WHERE id = ?'
     connection.query(sql, [userId], (error, results) => {
-        if (error) {
-            return
-        }
+        if (error) return
         res.status(200).send({code: 200, data: results, message: "success"})
     })
 })
@@ -145,7 +143,13 @@ router.get('/ownPosts', verifyToken, (req, res) => {
 
 // 获取谋一篇帖子
 router.get('/getPostsById/:postsId', (req, res) => {
-    const {  }
+    const postsId = req.params.postsId
+    console.log( req.params)
+    const sql = 'SELECT * FROM posts WHERE id = ?'
+    connection.query(sql, [postsId], (error, results) => {
+        if(error) return
+        res.status(200).send({code:200,data:results})
+    })
 })
 
 // 发布帖子
@@ -165,6 +169,7 @@ router.post('/releasePosts', verifyToken, (req, res) => {
     const date = new Date()
 
     const params = [title, content, imageURL, date, userId]
+    console.log(params)
     const sql = 'INSERT INTO posts (title, content, image_url, publish_time, user_id) VALUES (?, ?, ?, ?, ?)'
     connection.query(sql, [...params], (error, results) => {
         if (error) {
@@ -178,7 +183,9 @@ router.post('/releasePosts', verifyToken, (req, res) => {
 // 上传图片
 router.post('/upload/image', multer.single('file'), (req, res) => {
     // 返回上传成功的响应
-    res.json({success: true, message: '图片上传成功', code: 200});
+    console.log(req.file)
+    const filename = req.file.filename
+    res.json({success: true, message: '图片上传成功', code: 200, filename});
 })
 
 // 修改帖子
@@ -313,4 +320,41 @@ router.post('/updatePwd', verifyToken, (req, res) => {
     });
 });
 
+// -------------------###############------------------------
+
+// 分页查询用户信息
+router.get('/users/:currentPage/:pageSize', (req, res) => {
+    const currentPage = parseInt(req.params.currentPage) || 1;
+    const pageSize = parseInt(req.params.pageSize) || 10;
+    const offset = (currentPage - 1) * pageSize;
+
+    // 查询总条目数
+    const countQuery = 'SELECT COUNT(*) AS total_user FROM users';
+    connection.query(countQuery, (countError, countResults) => {
+        if (countError) {
+            console.error(countError);
+            res.status(500).json({ error: 'Server error' });
+        } else {
+            const totalItems = countResults[0].total_user;
+            // 分页查询
+            const query = "SELECT id,username,password,avatar_url,identity,DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') AS create_time,DATE_FORMAT(update_time, '%Y-%m-%d %H:%i:%s') AS update_time FROM users LIMIT ? OFFSET ? ";
+            connection.query(query, [pageSize, offset], (error, results) => {
+                if (error) {
+                    console.error(error);
+                    res.status(500).json({ error: 'Server error' });
+                } else {
+                    // 返回分页结果
+                    res.json({
+                        currentPage,
+                        pageSize,
+                        totalItems,
+                        totalPages: Math.ceil(totalItems / pageSize),
+                        items: results,
+                    });
+                    console.log(results);
+                }
+            });
+        }
+    });
+})
 module.exports = router;

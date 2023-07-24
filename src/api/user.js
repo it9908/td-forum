@@ -29,12 +29,9 @@ export function infoUser() {
 // 发布
 export function release(data) {
     return api({
-        url: "/releasePosts",
+        url: "/test/release1",
         method: "POST",
         data,
-        headers: {
-            // "Content-Type": "multipart/form-data", // 覆盖拦截器中的Content-Type设置
-        }
     })
 }
 
@@ -43,5 +40,12 @@ export function ownPosts() {
     return api({
         url: "/v1/myposts",
 
+    })
+}
+
+export function draftToBeReviewed(pageNumber, pageSize){
+    return api({
+        url: `/test/pendingReview/${pageNumber}/${pageSize}`,
+        method:"GET"
     })
 }

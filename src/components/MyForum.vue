@@ -66,7 +66,7 @@
             class="upload-demo"
             name="file"
             :limit="1"
-            action="http://localhost:5000/upload/image"
+            action="http://localhost:5000/v1/upload/image"
             :on-preview="handlePreview"
             :on-remove="handleRemove"
             :on-success="handleUploadSuccess"

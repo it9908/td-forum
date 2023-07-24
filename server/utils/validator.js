@@ -1,4 +1,3 @@
-
 // 验证用户名格式
 function isValidUsername(username) {
     const regexName = /^[a-zA-Z0-9]{5,11}$/;
@@ -6,7 +5,7 @@ function isValidUsername(username) {
 }
 
 // 验证密码格式
-async function isValidPassword(password) {
+function isValidPassword(password) {
     const regexPwd = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,12}$/;
     return regexPwd.test(password);
 }

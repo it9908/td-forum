@@ -2,11 +2,14 @@ require('dotenv').config()
 
 const path = require('path');
 const express = require('express')
+const bodyParser = require('body-parser');
 
 const cors = require('cors')
 
 const app = express()
 app.use(cors())
+// 注册自定义中间件
+app.use(bodyParser.json());
 
 // 获取绝对路径
 const uploadPath = path.join(__dirname,'./image');
@@ -24,10 +27,13 @@ app.use('/v1', require("./router/role/user"))
 app.use('/v1', require("./router/forum"))
 app.use('/v2', require("./router/role/admin"))
 app.use('/v1', require('./router/'))
+app.use('/test', require('./router/testRouter'))
 
 app.listen(5000, () => {
   console.log(`Server started on port ${serverHost}:${serverPort}`);
 });
+
+module.exports = app
 
 
 
